@@ -23,15 +23,6 @@ v <- c(-2,-3)
 my.parallel(x,v)
 v <- c(2,-3)
 my.parallel(x,v)
-tmp.x.list <- array(0,c(dim(xy.mat),length(out[,1])))
-for(i in 1:length(out[,1])){
-	tmp.v <- out[i,]
-	tmp.x.list[,,i] <- my.parallel(xy.mat,tmp.v)
-}
-tt <- apply(tmp.x.list,c(1,2),sum) - length(out[,1])*xy.mat
-image(tt)
-image(sign(tt))
-image(tt !=0)
 n <- 2^8
 x <- y <- 1:n
 xy <- as.matrix(expand.grid(x,y))
