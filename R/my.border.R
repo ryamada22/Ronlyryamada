@@ -39,5 +39,5 @@ my.border <- function(x,r=2){
 	end.to.end <- get.shortest.paths(mst.g,ends.mst$vertices[1],ends.mst$vertices[2])
 	vs <- as.numeric(end.to.end[[1]][[1]]$name)
 	vs <- c(vs,vs[1])
-	return(list(v=vs,border=x[vs,]))
+	return(list(v=vs,border=border.xy[vs,]))
 }
