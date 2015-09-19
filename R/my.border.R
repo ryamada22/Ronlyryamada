@@ -27,7 +27,7 @@
 
 #library(igraph)
 
-my.border <- function(x,r=2){
+my.border <- function(x,r=1){
 	out1 <- my.circ.measure(x,r)
 	border.xy <- which(out1$band!=0,arr.ind=TRUE)
 	D <- as.matrix(dist(border.xy,method="manhattan"))

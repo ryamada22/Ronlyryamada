@@ -4,7 +4,7 @@
 \alias{my.border}
 \title{2D area's border}
 \usage{
-my.border(x, r = 2)
+my.border(x, r = 1)
 }
 \arguments{
 \item{x}{is a 0/1 matrix.}
