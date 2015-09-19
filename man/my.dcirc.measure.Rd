@@ -24,8 +24,8 @@ x <- y <- 1:n
 xy <- as.matrix(expand.grid(x,y))
 xy.val <- rep(0,length(xy[,1]))
 n.circle <- 30
-ctr <- matrix(sample(50:200,replace=TRUE,n.circle*2),ncol=2)
-r <- sample(1:40,replace=TRUE,n.circle)
+ctr <- matrix(sample(20:40,replace=TRUE,n.circle*2),ncol=2)
+r <- sample(1:20,replace=TRUE,n.circle)
 
 for(i in 1:n.circle){
 	tmp.x <- xy[,1] - ctr[i,1]
