@@ -33,7 +33,6 @@ my.border <- function(x,r=2){
 	D <- as.matrix(dist(border.xy,method="manhattan"))
 	D. <- D==1
 	g <- graph.adjacency(D.,mode="undirected")
-	plot(g,layout=border.xy)
 	mst.g <- minimum.spanning.tree(g)
 	D.mst <- get.adjacency(mst.g)
 	ends.mst <- farthest_vertices(mst.g)
