@@ -1,16 +1,14 @@
 #' Utilities for DEC conformal
 #'
 #' These functions are for DEC conformal
+
 #' @export
-
-
-#' 頂点のrho値から面のrho値を算出する
 rho.fromVtoTri <- function(rho.v,faces.v){
   tmp.rho <- matrix(rho.v[faces.v],nrow=3)
   apply(tmp.rho,2,mean)
 }
-#' Utility 関数
-#' 特に疎行列において、面単位で不定回数の値加算をするためのユーティリティ関数
+
+#' @export
 my.vector.access <- function(v,a,func=sum,zero=0){
   if(is.vector(v)){
 		v <- matrix(v,ncol=1)
@@ -40,13 +38,7 @@ my.vector.access <- function(v,a,func=sum,zero=0){
 	}
 	return(list(A = rle.out[[2]],V = ret.v))
 }
-#' E行列作成関数
-#' ただし、四元数行列なので、虚実４成分それぞれをリストの要素とし
-#' 個々のリストも行列ではなく、ベクトル化した形で返す
-#' 疎行列のリスト
-#' 三角形の面積を考慮して、面のrho値に応じて、rhoが作る曲面上の
-#' ベクトル場を作り
-#' その定常解の一つとして固有ベクトルを取る
+#' Making E
 #' @export
 my.make.E.v <- function(vertices,faces.v,rho){
   # 三角形の面積
@@ -84,8 +76,7 @@ my.make.E.v <- function(vertices,faces.v,rho){
 
 	return(list(E.re=E.re,E.i=E.i,E.j=E.j,E.k=E.k))
 }
-#' 四元数行列を表すベクトルリストを引数として
-#' その実数版行列を返す
+
 #' @export
 my.qMtorM <- function(Es){
   n <- sqrt(length(Es[[1]]))
@@ -101,9 +92,6 @@ my.qMtorM <- function(Es){
 	}
 	Matrix(ret,n*4,n*4)
 }
-#' Ax = lambda b の固有ベクトルを逆冪乗法で近似する
-#' 初期ベクトル bは(1,1,...)がよいことが知られているので
-#' それをデフォルト値としてある
 #' @export
 my.inv.pow.2 <- function(A,n.iter=3,b=rep(1,ncol(A)),log=FALSE){
   x <- b
@@ -127,8 +115,6 @@ my.inv.pow.2 <- function(A,n.iter=3,b=rep(1,ncol(A)),log=FALSE){
 		return(list(x=x,x.log=matrix(0,0,ncol(A))))
 	}
 }
-#' ラプラシアン行列の算出
-#' すべての点について、その点を含む三角形について、三角形の内角で定まる値を加算する
 #' @export
 my.make.L <- function(vertices,faces.v){
   n.v <- length(vertices)
@@ -165,7 +151,6 @@ my.make.L <- function(vertices,faces.v){
 	}
 	L
 }
-#' ラプラシアン行列Lは実行列だが、その四元数版の実行列化したもの(行・列がそれぞれ４倍)を作る
 #' @export
 my.make.quatList <- function(L){
   L.q <- list()
@@ -175,7 +160,6 @@ my.make.quatList <- function(L){
   }
   L.q
 }
-#' omegaは回転を定めるlambdaを介して算出する
 #' @export
 my.make.omega <- function(vertices,faces.v,lambda){
   n.v <- length(vertices)
@@ -226,12 +210,6 @@ my.make.omega <- function(vertices,faces.v,lambda){
 	omega.re <- omega.re-apply(omega.re,1,mean)
 	c(omega.re)
 }
-#' 局所平均曲率を計算する関数
-#' 入力は頂点の四元数座標ベクトルと３行で表された三角形頂点ID行列
-#' 返り値はnorm.v,norm.face=ret.face,dirの３つで
-#' norm.vは各頂点の法線ベクトルに相当する四元数の行列で、その虚部の絶対値が平均曲率の大きさ
-#' norm.faceは各三角形のそれで、虚部の絶対値が平均曲率の大きさ
-#' dirは各三角形の平均曲率が曲面の外向きか内向きか(今、扱っている曲面はすべて球面様の閉曲面なので、外向き・内向きはその意味での内外)を示すc(-1,0,1)
 #' @export
 my.curvature.cot <- function(vertices,faces.v){
   n.v <- length(vertices)
@@ -290,10 +268,6 @@ my.curvature.cot <- function(vertices,faces.v){
   return(list(norm.v=ret.vec,norm.face=ret.face,dir=dir))
 }
 
-#' ３列の実行列(３次元座標の行列)xyzと、３行の頂点ID行列faces.vとを用いて、三角形メッシュを塗り描く関数
-#' ただし、この関数は、元がsp.triは、元の三角形メッシュがmy.sphere.tri.mesh()によって作られていることを前提としている。そのような場合に、sp.triという引数によって、隣接緯線間ごとに色を塗り分けることで、元の正球からの変形の様子を色表現することができる
-#' また、各三角形の色はrho.fなる実ベクトルによってコントラストをつけることができる
-#' col1は、元の正球からの変化を縞模様化するための長さ２の整数ベクトルである。その縞模様を使いたくないとき(メッシュがmy.sphere.tri.mesh()由来ではないときを含む)は、この長さ２のベクトルの２つの値を同じにすればよい)
 #' @export
 plot.sp.conformal <- function(xyz,faces.v,sp.tri,rho.f,col1=c(4,5)){
   plot3d(xyz,xlab="x",ylab="y",zlab="z")
