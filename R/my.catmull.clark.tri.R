@@ -1,6 +1,6 @@
 #' 3D triangle mesh smoothing
 #'
-#' These functions make triangle mesh smooth with Catmull-Clark subdivision
+#' These functions make triangle mesh smooth with Catmull Clark subdivision
 #' @param x.vet is a list. 
 #' @keywords shape triangulation mesh smoothing
 #' @export

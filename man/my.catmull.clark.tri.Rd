@@ -10,7 +10,7 @@ my.catmull.clark.tri(x.vet)
 \item{x.vet}{is a list.}
 }
 \description{
-These functions make triangle mesh smooth with Catmull-Clark subdivision
+These functions make triangle mesh smooth with Catmull Clark subdivision
 }
 \examples{
 library(rgl)
