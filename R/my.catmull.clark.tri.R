@@ -95,7 +95,6 @@ my.tri.vid <- function(tris){
 	return(list(v=v,tri.vid=tri.vid,tri.coord=list(tris$v1,tris$v2,tris$v3)))
 }
 
-ttt <- my.tri.vid(tris)
 
 # 三角形の頂点IDから、ノード、エッジ、三角形の相互帰属関係を返す
 
