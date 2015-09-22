@@ -81,10 +81,11 @@ my.tri.v.id <- function(v,u){
 
 
 
-# triangleオブジェクトを引数にとり
-# 頂点にIDを振り、その座標vと
-# 三角形の頂点座標セットと
-# 三角形の頂点座標を納めたリストを返す
+#' triangleオブジェクトを引数にとり
+#' 頂点にIDを振り、その座標vと
+#' 三角形の頂点座標セットと
+#' 三角形の頂点座標を納めたリストを返す
+#' @export
 my.tri.vid <- function(tris){
 	v <- unique(rbind(tris$v1,tris$v2,tris$v3))
 	v1 <- my.tri.v.id(v,tris$v1)
@@ -96,9 +97,9 @@ my.tri.vid <- function(tris){
 }
 
 
-# 三角形の頂点IDから、ノード、エッジ、三角形の相互帰属関係を返す
+#' 三角形の頂点IDから、ノード、エッジ、三角形の相互帰属関係を返す
 
-# 三角形頂点からエッジリストを返す
+#' 三角形頂点からエッジリストを返す
 #' @export
 my.tri.edge <- function(tri){
 	ed <- rbind(tri[,1:2],tri[,2:3],tri[,c(1,3)])
@@ -106,7 +107,7 @@ my.tri.edge <- function(tri){
 	ed <- unique(ed)
 	ed
 }
-# 頂点 v、辺 e、三角形 vの相互の帰属関係を算出する
+#' 頂点 v、辺 e、三角形 vの相互の帰属関係を算出する
 #' @export
 my.tri.vet <- function(tri){
 	v.of.e <- my.tri.edge(tri)
