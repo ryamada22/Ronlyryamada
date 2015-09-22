@@ -346,3 +346,32 @@ my.sphereConformal <- function(n.psi,rho.fx){
   ret <- list(xyz.new=out$xyz.new,xyz.ori=sp.mesh$xyz,xyz.new.q=out$xyz.new.q,xyz.ori.q=vertices,faces.v=faces.v,E=out$E,L=out$L,lambda.v=out$lambda.v,omega=out$omega,n.psi=n.psi,rho.fx=rho.fx,rho.v=rho.v,rho.f=out$rho.f,sp.mesh=sp.mesh)
   ret
 }
+#' @export
+my.deform.k.serial <- function(vertices,faces.v,k,n.iter=10){
+  v.list <- rho.cot.list <- list()
+  v.list[[1]] <- vertices
+  rho.cot.list[[1]] <- my.curvature.cot(v.list[[1]],faces.v)
+  for(i in 1:n.iter){
+    
+    tmp.rho.f <- rho.cot.list[[i]][[3]] * Mod(Im(rho.cot.list[[i]][[2]]))
+    tmp.out <- my.conformal.rho(v.list[[i]],faces.v,k*tmp.rho.f,face=TRUE)
+    v.list[[i+1]] <- tmp.out$xyz.new.q
+    rho.cot.list[[i+1]] <- my.curvature.cot(v.list[[i+1]],faces.v)
+  }
+  return(list(v.list=v.list,rho.cot.list=rho.cot.list,k=k))
+}
+
+#' @export
+my.deform.k.multi <- function(vertices,faces.v,ks){
+  v.list <- rho.cot.list <- list()
+  v.list[[1]] <- vertices
+  rho.cot.list[[1]] <- my.curvature.cot(v.list[[1]],faces.v)
+  for(i in 1:length(ks)){
+    
+    tmp.rho.f <- rho.cot.list[[1]][[3]] * Mod(Im(rho.cot.list[[1]][[2]]))
+    tmp.out <- my.conformal.rho(v.list[[1]],faces.v,ks[i]*tmp.rho.f,face=TRUE)
+    v.list[[i+1]] <- tmp.out$xyz.new.q
+    rho.cot.list[[i+1]] <- my.curvature.cot(v.list[[i+1]],faces.v)
+  }
+  return(list(v.list=v.list,rho.cot.list=rho.cot.list,k=k))
+}
