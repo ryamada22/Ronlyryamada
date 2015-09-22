@@ -29,6 +29,12 @@ sss <- my.tri.vet(ttt[[2]])
 x.vet <- list(ttt[[1]],sss)
 new.vet <- my.catmull.clark.tri(x.vet)
 plot3d(new.vet[[1]][new.vet[[2]]$v.of.t,])
+drawScene.rgl(tris)
+tris2 <- tris
+tris2$v1 <- new.vet[[1]][new.vet[[2]]$v.of.t[,1],]
+tris2$v2 <- new.vet[[1]][new.vet[[2]]$v.of.t[,2],]
+tris2$v3 <- new.vet[[1]][new.vet[[2]]$v.of.t[,3],]
+drawScene.rgl(tris2)
 }
 \keyword{mesh}
 \keyword{shape}
