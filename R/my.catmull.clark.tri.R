@@ -17,7 +17,7 @@
 #' xyz.arr <- array(out$xyz.val,c(2^k,2^k,2^k))
 #' tris <- my.peri.tri(xyz.arr)
 #' drawScene.rgl(tris)
-#' sss <- my.tri.vet(ttt[[2]])
+#' sss <- my.tri.vet(tris[[2]])
 #' x.vet <- list(ttt[[1]],sss)
 #' new.vet <- my.catmull.clark.tri(x.vet)
 #' plot3d(new.vet[[1]][new.vet[[2]]$v.of.t,])
