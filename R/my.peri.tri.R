@@ -17,10 +17,10 @@
 #' tris <- my.peri.tri(xyz.arr)
 #' drawScene.rgl(tris)
 
-my.peri.tri <- function(v,h=max(v)){
+my.peri.tri <- function(v,h=max(v),smooth=0){
 	#library(misc3d)
 	con <- computeContour3d(v, h, 1)
-	tris <- makeTriangles(con)
+	tris <- makeTriangles(con,smooth=smooth)
 
 	V1 <- tris$v1
 	V2 <- tris$v2
@@ -28,7 +28,8 @@ my.peri.tri <- function(v,h=max(v)){
 
 	L12 <- apply((V1-V2)^2,1,sum)
 	L13 <- apply((V1-V3)^2,1,sum)
-	L123 <- L12+L13
+	L23 <- apply((V2-V3)^2,1,sum)
+	L123 <- L12*L13*L23
 	zeros <- (L123==0)
 
 	tris$v1 <- V1[!zeros,]

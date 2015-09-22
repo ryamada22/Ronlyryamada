@@ -4,7 +4,7 @@
 \alias{my.peri.tri}
 \title{3D object surface triangles}
 \usage{
-my.peri.tri(v, h = max(v))
+my.peri.tri(v, h = max(v), smooth = 0)
 }
 \arguments{
 \item{v}{is a 3d-array..}
