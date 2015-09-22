@@ -7,7 +7,9 @@
 my.catmull.clark.tri(x.vet)
 }
 \arguments{
-\item{x.vet}{is a list. The first element is 3-column matrix of coordinates of vertices and the second element is triangular-mesh information object (output of my.tri.vet() ).}
+\item{x.vet}{is a list. The first element is 3-column matrix of coordinates o
+f vertices and the second element is triangular-mesh information object (outp
+ut of my.tri.vet() ).}
 }
 \description{
 These functions make triangle mesh smooth with Catmull-Clark subdivision
