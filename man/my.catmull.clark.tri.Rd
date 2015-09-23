@@ -15,6 +15,8 @@ These functions make triangle mesh smooth with Catmull Clark subdivision
 \examples{
 library(rgl)
 library(misc3d)
+library(Matrix)
+library(onion)
 v <- matrix(c(1,2,3,2,3,1,3,3,3),byrow=TRUE,ncol=3)
 u <- v[c(3,2,1,3,2,2,2,3),]
 my.tri.v.id(v,u)
@@ -43,8 +45,8 @@ tri.sorted <- my.sort.tri.dir(toe,voe,vot)
 vertices <- new.vet[[1]][,1]*Hi+new.vet[[1]][,2]*Hj+new.vet[[1]][,3]*Hk
 faces.v <- t(tri.sorted)
 rho.cot <- my.curvature.cot(vertices,faces.v)
-plot3d(x.vet[[1]],xlab="x",ylab="y",zlab="z")
-mesh.tri <- tmesh3d(t(x.vet[[1]]),faces.v,homogeneous=FALSE)
+plot3d(new.vet[[1]],xlab="x",ylab="y",zlab="z")
+mesh.tri <- tmesh3d(t(new.vet[[1]]),faces.v,homogeneous=FALSE)
 rho.f <- rho.cot[[3]] * Mod(Im(rho.cot[[2]]))
 rho.f <- rep(rho.f,each=3)
 rho.f1 <- rho.f2 <- rep(0,length(rho.f))

@@ -16,7 +16,7 @@ These function is for 2D 0/1 image matrix and returns its border
 }
 \examples{
 library(igraph)
-n <- 2^5
+n <- 2^8
 x <- y <- 1:n
 xy <- as.matrix(expand.grid(x,y))
 xy.val <- rep(0,length(xy[,1]))
