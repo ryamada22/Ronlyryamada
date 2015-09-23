@@ -36,6 +36,22 @@ tris2$v1 <- new.vet[[1]][new.vet[[2]]$v.of.t[,1],]
 tris2$v2 <- new.vet[[1]][new.vet[[2]]$v.of.t[,2],]
 tris2$v3 <- new.vet[[1]][new.vet[[2]]$v.of.t[,3],]
 drawScene.rgl(tris2)
+vot <- new.vet[[2]]$v.of.t
+voe <- new.vet[[2]]$v.of.e
+toe <- new.vet[[2]]$t.of.e
+tri.sorted <- my.sort.tri.dir(toe,voe,vot)
+vertices <- new.vet[[1]][,1]*Hi+new.vet[[1]][,2]*Hj+new.vet[[1]][,3]*Hk
+faces.v <- t(tri.sorted)
+rho.cot <- my.curvature.cot(vertices,faces.v)
+plot3d(x.vet[[1]],xlab="x",ylab="y",zlab="z")
+mesh.tri <- tmesh3d(t(x.vet[[1]]),faces.v,homogeneous=FALSE)
+rho.f <- rho.cot[[3]] * Mod(Im(rho.cot[[2]]))
+rho.f <- rep(rho.f,each=3)
+rho.f1 <- rho.f2 <- rep(0,length(rho.f))
+rho.f1[which(rho.f>0)] <- rho.f[which(rho.f>0)]
+rho.f2[which(rho.f<0)] <- -rho.f[which(rho.f<0)]
+col2 <- rgb(rho.f1/max(rho.f1),rho.f2/max(rho.f2),0.5)
+shade3d(mesh.tri,col=col2)
 }
 \keyword{mesh}
 \keyword{shape}

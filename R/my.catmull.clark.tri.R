@@ -28,6 +28,23 @@
 #' tris2$v2 <- new.vet[[1]][new.vet[[2]]$v.of.t[,2],]
 #' tris2$v3 <- new.vet[[1]][new.vet[[2]]$v.of.t[,3],]
 #' drawScene.rgl(tris2)
+#' vot <- new.vet[[2]]$v.of.t
+#' voe <- new.vet[[2]]$v.of.e
+#' toe <- new.vet[[2]]$t.of.e
+#' tri.sorted <- my.sort.tri.dir(toe,voe,vot)
+#' vertices <- new.vet[[1]][,1]*Hi+new.vet[[1]][,2]*Hj+new.vet[[1]][,3]*Hk
+#' faces.v <- t(tri.sorted)
+#' rho.cot <- my.curvature.cot(vertices,faces.v)
+#' plot3d(x.vet[[1]],xlab="x",ylab="y",zlab="z")
+#' mesh.tri <- tmesh3d(t(x.vet[[1]]),faces.v,homogeneous=FALSE)
+#' rho.f <- rho.cot[[3]] * Mod(Im(rho.cot[[2]]))
+#' rho.f <- rep(rho.f,each=3)
+#' rho.f1 <- rho.f2 <- rep(0,length(rho.f))
+#' rho.f1[which(rho.f>0)] <- rho.f[which(rho.f>0)]
+#' rho.f2[which(rho.f<0)] <- -rho.f[which(rho.f<0)]
+#' col2 <- rgb(rho.f1/max(rho.f1),rho.f2/max(rho.f2),0.5)
+#' shade3d(mesh.tri,col=col2)
+
 
 my.catmull.clark.tri <- function(x.vet){
 	x <- x.vet[[1]]
@@ -91,8 +108,8 @@ my.tri.vid <- function(tris){
 	v2 <- my.tri.v.id(v,tris$v2)
 	v3 <- my.tri.v.id(v,tris$v3)
 	tri.vid <- cbind(v1[,2],v2[,2],v3[,2])
-	tri.vid <- t(apply(tri.vid,1,sort))
-	return(list(v=v,tri.vid=tri.vid,tri.coord=list(tris$v1,tris$v2,tris$v3)))
+	tri.vid.s <- t(apply(tri.vid,1,sort))
+	return(list(v=v,tri.vid=tri.vid.s,tri.vid.unsorted=tri.vid,tri.coord=list(tris$v1,tris$v2,tris$v3)))
 }
 
 #' @export
@@ -134,3 +151,112 @@ my.tri.vet <- function(tri){
 	return(list(e.of.v=e.of.v,t.of.v=t.of.v,v.of.e=v.of.e,t.of.e=t.of.e,v.of.t=v.of.t,e.of.t=e.of.t))
 }
 
+#' @export
+my.sort.tri.dir <- function(t.of.e,v.of.e,v.of.t){
+	n.t <- max(t.of.e)
+	n.e <- length(t.of.e[,1])
+	n.v <- max(v.of.e)
+	tmp <- v.of.e[,1] * n.v + v.of.e[,2]
+	ord <- order(tmp)
+	mat <- matrix(0,n.t,n.e)
+	for(i in 1:n.e){
+		mat[t.of.e[i,],i] <- 1
+	}
+	mat <- mat[,ord]
+	ret <- matrix(0,n.t,n.e)
+	ret[1,which(mat[1,]==1)] <- c(1,-1,1)
+
+	mat[1,] <- 0
+	ori <- rep(0,n.t)
+	ori[1] <- 1
+	
+	loop <- TRUE
+	
+	while(loop){
+		tmp <- apply(ret,2,sum)
+		candidate.t <- which(apply(mat,1,sum)==3)
+		if(length(candidate.t)==0){
+			loop <- FALSE
+		}else{
+			tmp.ret <- ret
+			tmp.ret[candidate.t,] <- -matrix(rep(tmp,length(candidate.t)),byrow=TRUE,ncol=n.e) * mat[candidate.t,]
+			diff.ret <- tmp.ret - ret
+			abs.diff.ret <- abs(diff.ret)
+			new.t <- which(apply(abs.diff.ret,1,sum)>0)
+			for(i in 1:length(new.t)){
+				eds <- which(mat[new.t[i],]==1)
+				tmp.three <- tmp.ret[new.t[i],eds]
+				if(prod(tmp.three-c(1,-1,1))==0){
+					tmp.ret[new.t[i],eds] <- c(1,-1,1)
+					ori[new.t[i]] <- 1
+				}else{
+					tmp.ret[new.t[i],eds] <- c(-1,1,-1)
+					ori[new.t[i]] <- -1
+				}
+				mat[new.t[i],] <- 0
+			}
+		}
+		ret <- tmp.ret
+	}
+	new.v.of.t <- v.of.t
+	new.v.of.t[which(ori==-1),] <- v.of.t[which(ori==-1),c(1,3,2)]
+	
+	new.v.of.t
+}
+#' @export
+my.sort.tri.dir.slow <- function(eot,toe,vot,voe){
+	n.t <- length(eot[,1])
+	n.e <- length(toe[,1])
+	ret <- matrix(0,n.t,3)
+	done.t <- rep(0,n.t)
+	done.e <- rep(0,n.e)
+	ret[1,] <- vot[1,]
+	seed.t <- 1
+	done.t[seed.t] <- 1
+	done.e[eot[seed.t,]] <- 1
+	loop <- TRUE
+	while(loop){
+		target.t <- c()
+		given.t <- c()
+		given.e <- c()
+		for(i in 1:length(seed.t)){
+			target.e <- eot[seed.t[i],]
+			for(j in 1:length(target.e)){
+				tmp <- toe[target.e[i],]
+				tmp2 <- which(tmp!=seed.t[i])
+				target.t <- c(target.t,tmp[tmp2])
+				given.t <- c(given.t,seed.t[i])
+				given.e <- c(given.e,target.e[j])
+			}
+		}
+		seed.t <- c()
+		for(i in 1:length(target.t)){
+			if(done.t[i]==0){
+				seed.t <- c(seed.t,target.t[i])
+				tmp <- ret[given.t[i],]
+				ed <- rbind(vot[target.t[i],1:2],vot[target.t[i],2:3],vot[target.t[i],c(1,3)])
+				
+				ED <- rbind(vot[given.t[i],1:2],vot[given.t[i],2:3],vot[given.t[i],c(1,3)])
+				diff1 <- outer(ed[,1],ED[,1],"-")
+				diff2 <- outer(ed[,2],ED[,2],"-")
+				Diff <- abs(diff1) + abs(diff2)
+				id <- which(Diff==0,arr.ind=TRUE)
+				ida <- id[1]<3
+				idb <- id[2]<3
+				if(xor(ida,idb)){
+					ret[target.t[i],] <- vot[target.t[i],]
+				}else{
+					tmp2 <- vot[target.t[i],]
+					ret[target.t[i],] <- tmp2[c(2,1,3)]
+				}
+			}
+		}
+		done.t[seed.t] <- 1
+		done.e[eot[seed.t,]] <- 1
+
+		if(sum(done.e)==length(done.e)){
+			loop <- FALSE
+		}
+	}
+	ret
+}
