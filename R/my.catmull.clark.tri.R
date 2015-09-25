@@ -36,16 +36,13 @@
 #' tri.sorted <- my.sort.tri.dir(toe,voe,vot)
 #' vertices <- new.vet[[1]][,1]*Hi+new.vet[[1]][,2]*Hj+new.vet[[1]][,3]*Hk
 #' faces.v <- t(tri.sorted)
-#' rho.cot <- my.curvature.cot(vertices,faces.v)
-#' plot3d(new.vet[[1]],xlab="x",ylab="y",zlab="z")
-#' mesh.tri <- tmesh3d(t(new.vet[[1]]),faces.v,homogeneous=FALSE)
-#' rho.f <- rho.cot[[3]] * Mod(Im(rho.cot[[2]]))
-#' rho.f <- rep(rho.f,each=3)
-#' rho.f1 <- rho.f2 <- rep(0,length(rho.f))
-#' rho.f1[which(rho.f>0)] <- rho.f[which(rho.f>0)]
-#' rho.f2[which(rho.f<0)] <- -rho.f[which(rho.f<0)]
-#' col2 <- rgb(rho.f1/max(rho.f1),rho.f2/max(rho.f2),0.5)
-#' shade3d(mesh.tri,col=col2)
+#' my.mesh.tri.plot(vertices,faces.v)
+#' tmp.out <- my.mesh.back.euler(vertices,faces.v,step=0.005,eps=10^(-10),max.iter=200)
+#' for(i in 1:20){
+#' 	tmp.out <- my.mesh.back.euler(tmp.out,faces.v,step=0.005)
+#' 	my.mesh.tri.plot(tmp.out,faces.v)
+#' }
+#' my.mesh.tri.plot(tmp.out,faces.v)
 
 
 my.catmull.clark.tri <- function(x.vet){
@@ -261,4 +258,24 @@ my.sort.tri.dir.slow <- function(eot,toe,vot,voe){
 		}
 	}
 	ret
+}
+
+#' @export
+my.mesh.back.euler <- function(vertices,faces.v,step = 0.01,eps = 10^-5,max.iter = 50){
+	# 曲率,rho と法線ベクトル,N
+	rho.out <- my.curvature.cot(vertices,faces.v)
+	rho.N <- rho.out[[1]]
+	new.vertices <- vertices - 2 * rho.N * step
+	for(i in 1:max.iter){
+		# new.verticesでのrho=new.rho,N=new.N
+		rho.out <- my.curvature.cot(new.vertices,faces.v)
+		new.rho.N <- rho.out[[1]]
+		tmp.vertices <- vertices - 2 * new.rho.N * step
+		diff.vertices <- tmp.vertices - new.vertices
+		if(max(Norm(diff.vertices) < eps)){
+			break
+		}
+		new.vertices = tmp.vertices		
+	}
+	new.vertices
 }

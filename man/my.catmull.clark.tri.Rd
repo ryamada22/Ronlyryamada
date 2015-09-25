@@ -44,16 +44,13 @@ toe <- new.vet[[2]]$t.of.e
 tri.sorted <- my.sort.tri.dir(toe,voe,vot)
 vertices <- new.vet[[1]][,1]*Hi+new.vet[[1]][,2]*Hj+new.vet[[1]][,3]*Hk
 faces.v <- t(tri.sorted)
-rho.cot <- my.curvature.cot(vertices,faces.v)
-plot3d(new.vet[[1]],xlab="x",ylab="y",zlab="z")
-mesh.tri <- tmesh3d(t(new.vet[[1]]),faces.v,homogeneous=FALSE)
-rho.f <- rho.cot[[3]] * Mod(Im(rho.cot[[2]]))
-rho.f <- rep(rho.f,each=3)
-rho.f1 <- rho.f2 <- rep(0,length(rho.f))
-rho.f1[which(rho.f>0)] <- rho.f[which(rho.f>0)]
-rho.f2[which(rho.f<0)] <- -rho.f[which(rho.f<0)]
-col2 <- rgb(rho.f1/max(rho.f1),rho.f2/max(rho.f2),0.5)
-shade3d(mesh.tri,col=col2)
+my.mesh.tri.plot(vertices,faces.v)
+tmp.out <- my.mesh.back.euler(vertices,faces.v,step=0.005,eps=10^(-10),max.iter=200)
+for(i in 1:20){
+	tmp.out <- my.mesh.back.euler(tmp.out,faces.v,step=0.005)
+	my.mesh.tri.plot(tmp.out,faces.v)
+}
+my.mesh.tri.plot(tmp.out,faces.v)
 }
 \keyword{mesh}
 \keyword{shape}

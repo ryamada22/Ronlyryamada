@@ -375,3 +375,31 @@ my.deform.k.multi <- function(vertices,faces.v,ks){
   }
   return(list(v.list=v.list,rho.cot.list=rho.cot.list,k=k))
 }
+
+#' @export
+my.mesh.tri.plot <- function(vertices,faces.v,rho.f=NULL){
+	if(is.null(rho.f)){
+		rho.cot <- my.curvature.cot(vertices,faces.v)
+		rho.f <- rho.cot[[3]] * Mod(Im(rho.cot[[2]]))
+	}
+	xyz <- as.matrix(vertices)[2:4,]
+	plot3d(t(xyz))
+	mesh.tri <- tmesh3d(xyz,faces.v,homogeneous=FALSE)
+	rho.f <- rho.cot[[3]] * Mod(Im(rho.cot[[2]]))
+	rho.f <- rep(rho.f,each=3)
+	rho.f1 <- rho.f2 <- rep(0,length(rho.f))
+	rho.f1[which(rho.f>0)] <- rho.f[which(rho.f>0)]
+	rho.f2[which(rho.f<0)] <- -rho.f[which(rho.f<0)]
+	#col2 <- rgb(rho.f1/max(rho.f1),rho.f2/max(rho.f2),0.5)
+	red <- rep(0,length(rho.f))
+	green <- rep(0,length(rho.f))
+	if(max(rho.f1)!=0){
+		red <- rho.f1/max(rho.f1)
+	}
+	if(max(rho.f2)!=0){
+		green <- rho.f2/max(rho.f2)
+	}
+	col2 <- rgb(red,green,0.5)
+	shade3d(mesh.tri,col=col2)
+}
+
