@@ -306,8 +306,8 @@ my.conformal.rho <- function(vertices,faces.v,rho.v,face=FALSE){
   
   # rho ‚Ì–ÊÏd‚Ý‚Â‚«‘˜a‚Í0‚Å‚È‚¢‚Æu•Â‚¶v‚È‚¢
   s <- sum(A*rho.f)
-  rho.f <- rho.f -s*A/sum(A)
-  
+  #rho.f <- rho.f -s*A/sum(A)
+  rho.f <- rho.f -s/A/length(A)
   
   E <- my.make.E.v(vertices,faces.v,rho.f)
   E.re <- my.qMtorM(E)
@@ -330,7 +330,7 @@ my.conformal.rho <- function(vertices,faces.v,rho.v,face=FALSE){
   new.q <- as.quaternion(t(cbind(rep(0,n.v),xyz.new.st)))
   #ret <- xyz.new.st[,1]*Hi + xyz.new.st[,2]*Hj + xyz.new.st[,3]*Hk
   
-  ret <- list(xyz.new=xyz.new.st,xyz.ori=sp.mesh$xyz,xyz.new.q=new.q,xyz.ori.q=vertices,faces.v=faces.v,E=E,L=L,lambda.v=lambda.v,omega=omega,n.psi=n.psi,rho.fx=rho.fx,rho.v=rho.v,rho.f=rho.f,sp.mesh=sp.mesh)
+  ret <- list(xyz.new=xyz.new.st,xyz.ori=xyz.ori,xyz.new.q=new.q,xyz.ori.q=vertices,faces.v=faces.v,E=E,L=L,lambda.v=lambda.v,omega=omega,rho.f=rho.f)
   ret
 }
 
