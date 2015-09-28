@@ -403,3 +403,22 @@ my.mesh.tri.plot <- function(vertices,faces.v,rho.f=NULL){
 	shade3d(mesh.tri,col=col2)
 }
 
+my.Laplacian <- function(vertices, faces.v){
+	n.v <- length(vertices)
+	n.f <- length(faces.v[1,])
+	n.e <- n.f * 3/2
+	
+	# ŽOŠpŒ`‚Ì–ÊÏ
+	edge1 <- vertices[faces.v[2,]]-vertices[faces.v[1,]]
+	edge2 <- vertices[faces.v[3,]]-vertices[faces.v[1,]]
+	tmp <- edge1 * edge2
+	tmp2 <- Mod(Im(tmp))
+	A.f <- (tmp2)/2
+	# ’¸“_ŽüˆÍ‚ÌŽOŠpŒ`–ÊÏ‚Ì˜a
+	val <- rep(A.f,each=3)
+	addr <- c(faces.v)
+	tmp.out <- my.vector.access(val,addr)
+	A.v <- tmp.out[[2]][,1] # ’¸“_ŽüˆÍ–ÊÏ˜a
+	A.v <- A.v/3
+	
+}
