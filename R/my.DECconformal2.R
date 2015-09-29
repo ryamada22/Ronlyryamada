@@ -41,25 +41,20 @@ my.vector.access <- function(v,a,func=sum,zero=0){
 #' Making E
 #' @export
 my.make.E.v <- function(vertices,faces.v,rho){
-  # 三角形の面積
 	edge1 <- vertices[faces.v[2,]]-vertices[faces.v[1,]]
 	edge2 <- vertices[faces.v[3,]]-vertices[faces.v[1,]]
 	tmp <- edge1 * edge2
   A <- Mod(Im(tmp))/2
-	#A <- abs(i(tmp)+j(tmp)+k(tmp))/2
-	# 三角形ごとの計算用係数
 	coef.a <- -1/(4*A)
 	coef.b <- rho/6
 	coef.c <- A*rho^2/9
 	
-	# Rでは四元数を要素とする行列がないので、re,i,j,kごとに正方行列を作ることにする
 	E.re <- E.i <- E.j <- E.k <- sparseVector(c(0),i=c(1),length=length(vertices)^2)
   
 	e.q <- list()
 	e.q[[1]] <- vertices[faces.v[2,]]-vertices[faces.v[3,]]
 	e.q[[2]] <- vertices[faces.v[3,]]-vertices[faces.v[1,]]
 	e.q[[3]] <- vertices[faces.v[1,]]-vertices[faces.v[2,]]
-  # すべての頂点ペアについて、すべての三角形ごとに処理をする
 	for(i in 1:3){
 		for(j in 1:3){
 			tmp <- coef.a * e.q[[i]] * e.q[[j]]+ coef.b * (e.q[[j]] -e.q[[i]] ) + coef.c
@@ -124,19 +119,14 @@ my.make.L <- function(vertices,faces.v){
 		k1 <- faces.v[v.ord[1],]
 		k2 <- faces.v[v.ord[2],]
 		k3 <- faces.v[v.ord[3],]
-		# 頂点四元数
 		v1 <- vertices[k1]
 		v2 <- vertices[k2]
 		v3 <- vertices[k3]
 		
-		# edge 四元数
 		u1 <- v2-v1
 		u2 <- v3-v1
-		# edge 四元数(純虚四元数)の積は実部がドット積、虚部がクロス積ベクトル
 		u12 <- u1 * u2
 		cotAlpha <- (-Re(u12))/Mod(Im(u12))
-		# このcotAlphaを行列Lの[k2,k2],[k3,k3],[k2,k3],[k3,k2]に加算する
-		# 疎ベクトルで格納する
 		addrk2k2 <- k2 + (k2-1)*n.v
 		addrk3k3 <- k3 + (k3-1)*n.v
 		addrk2k3 <- k2 + (k3-1)*n.v
@@ -167,19 +157,16 @@ my.make.omega <- function(vertices,faces.v,lambda){
 	for(i in 1:3){
 		v.ord <- ((1:3)+i+1) %% 3 + 1
 		k1 <- faces.v[v.ord[1],]
-		# 対向辺の向きは頂点IDの大小順にそろえる
 		k23 <- rbind(faces.v[v.ord[2],],faces.v[v.ord[3],])
 		k23 <- apply(k23,2,sort)
 		k2 <- k23[2,]
 		k3 <- k23[1,]
-		# 頂点四元数
 		v1 <- vertices[k1]
 		v2 <- vertices[k2]
 		v3 <- vertices[k3]
 		
 		edge <- v3-v2
 		
-		# lambdaの四元数化、とその共役四元数化
 		lambda.mat <- matrix(lambda,nrow=4)
 		lambda.q <- as.quaternion(lambda.mat)
 		lambda.mat.2 <- lambda.mat
@@ -189,13 +176,10 @@ my.make.omega <- function(vertices,faces.v,lambda){
 		lambda1. <- lambda.q.[k2]
 		lambda2 <- lambda.q[k3]
 		lambda2. <- lambda.q.[k3]
-		# エッジに回転処理をしながら、加算量を算出
 		val <- 1/3 * lambda1. * edge * lambda1 + 1/6 * lambda1. * edge * lambda2 + 1/6 * lambda2. * edge * lambda1 + 1/3 * lambda2. * edge * lambda2
 
-		# edge 四元数
 		u1 <- v2-v1
 		u2 <- v3-v1
-		# edge 四元数(純虚四元数)の積は実部がドット積、虚部がクロス積ベクトル
 		u12 <- u1 * u2
 		cotAlpha <- (-Re(u12))/Mod(Im(u12))
 
@@ -211,74 +195,13 @@ my.make.omega <- function(vertices,faces.v,lambda){
 	c(omega.re)
 }
 #' @export
-my.curvature.cot <- function(vertices,faces.v){
-  n.v <- length(vertices)
-  ret <- rep(0*Hk,n.v)
-  # 三角形の面積
-  edge1 <- vertices[faces.v[2,]]-vertices[faces.v[1,]]
-  edge2 <- vertices[faces.v[3,]]-vertices[faces.v[1,]]
-  tmp <- edge1 * edge2
-  tmp2 <- Mod(Im(tmp))
-  #tmp2 <- i(tmp)+j(tmp)+k(tmp)
-  #inv.f <- which(tmp2<0)
-  #faces.v[2:3,inv.f] <- rbind(faces.v[3,inv.f],faces.v[2,inv.f])
- 	A.f <- (tmp2)/2
-  # 頂点周囲の三角形面積の和
-  val <- rep(A.f,each=3)
-  addr <- c(faces.v)
-  tmp.out <- my.vector.access(val,addr)
-  A.v <- tmp.out[[2]][,1] # 頂点周囲面積和
-  
-  for(i in 1:3){
-		v.ord <- ((1:3)+i+1) %% 3 + 1
-		k1 <- faces.v[v.ord[1],]
-		k2 <- faces.v[v.ord[2],]
-		k3 <- faces.v[v.ord[3],]
-		# 頂点四元数
-		v1 <- vertices[k1]
-		v2 <- vertices[k2]
-		v3 <- vertices[k3]
-		
-		# edge 四元数
-		u1 <- v2-v1
-		u2 <- v3-v1
-    
-    # 対向辺
-    u3 <- v3-v2
-    #u3.len <- Mod(Im(u3))
-		# edge 四元数(純虚四元数)の積は実部がドット積、虚部がクロス積ベクトル
-		u12 <- u1 * u2
-		cotAlpha <- ((-Re(u12))/Mod(Im(u12)))
-    
-    val <- c(cotAlpha * u3, cotAlpha * (-u3))
-    addr <- c(k2,k3)
-    tmp.out <- my.vector.access(t(as.matrix(val)),addr)
-    tmp.val <- as.quaternion(t(tmp.out[[2]]))
-    ret[tmp.out[[1]]] <- ret[tmp.out[[1]]] + tmp.val
-  }
-  ret.vec <- -ret/(4*A.v)
-  ret.face.re <- rho.fromVtoTri(Re(ret.vec),faces.v)
-  ret.face.i <- rho.fromVtoTri(i(ret.vec),faces.v)
-  ret.face.j <- rho.fromVtoTri(j(ret.vec),faces.v)
-  ret.face.k <- rho.fromVtoTri(k(ret.vec),faces.v)
-  ret.face <- ret.face.re + Hi * ret.face.i + Hj * ret.face.j + Hk * ret.face.k
-  
-  
-  dir <- sign(Re(tmp * ret.face))
-  return(list(norm.v=ret.vec,norm.face=ret.face,dir=dir))
-}
-
-#' @export
 plot.sp.conformal <- function(xyz,faces.v,sp.tri,rho.f,col1=c(4,5)){
   plot3d(xyz,xlab="x",ylab="y",zlab="z")
   mesh.tri <- tmesh3d(t(xyz),faces.v,homogeneous=FALSE)
   
-  # 縞のための値ベクトル
   col. <- rep(col1,length(sp.tri))[1:length(sp.tri)]
   col <- rep(col.,sp.tri*3)
-  # rhoを反映した値ベクトル
   rho.f <- rep(rho.f,each=3)
-  #rho.f2 <- sign(rho.f)
   rho.f <- (rho.f-min(rho.f))/(max(rho.f)-min(rho.f))
   
   col2 <- rgb(1-rho.f,1,col/6)
@@ -289,8 +212,8 @@ plot.sp.conformal <- function(xyz,faces.v,sp.tri,rho.f,col1=c(4,5)){
 #' @export
 my.conformal.rho <- function(vertices,faces.v,rho.v,face=FALSE){
   xyz.ori <- t(as.matrix(vertices)[2:4,])
-  n.v <- length(vertices) # 頂点数
-  n.f <- length(faces.v[1,]) # 三角形数
+  n.v <- length(vertices) 
+  n.f <- length(faces.v[1,])
   if(!face){
     rho.f <- rho.fromVtoTri(rho.v,faces.v)
   }else{
@@ -298,13 +221,11 @@ my.conformal.rho <- function(vertices,faces.v,rho.v,face=FALSE){
   }
   
   
-  # 三角形の面積
   edge1 <- vertices[faces.v[2,]]-vertices[faces.v[1,]]
 	edge2 <- vertices[faces.v[3,]]-vertices[faces.v[1,]]
 	tmp <- edge1 * edge2
   A <- Mod(Im(tmp))/2
   
-  # rho の面積重みつき総和は0でないと「閉じ」ない
   s <- sum(A*rho.f)
   #rho.f <- rho.f -s*A/sum(A)
   rho.f <- rho.f -s/A/length(A)
@@ -337,11 +258,11 @@ my.conformal.rho <- function(vertices,faces.v,rho.v,face=FALSE){
 #' @export
 my.sphereConformal <- function(n.psi,rho.fx){
   sp.mesh <- my.sphere.tri.mesh(n.psi)
-  vertices.mat <- t(sp.mesh$xyz) # ３行行列化
+  vertices.mat <- t(sp.mesh$xyz) 
   vertices <- vertices.mat[1,]*Hi + vertices.mat[2,]*Hj + vertices.mat[3,]*Hk
   edges <- sp.mesh$edge
   faces.v <- t(sp.mesh$triangles)
-  rho.v <- rho.fx(sp.mesh$xyz) # 頂点における
+  rho.v <- rho.fx(sp.mesh$xyz) 
   out <- my.conformal.rho(vertices,faces.v,rho.v)
   ret <- list(xyz.new=out$xyz.new,xyz.ori=sp.mesh$xyz,xyz.new.q=out$xyz.new.q,xyz.ori.q=vertices,faces.v=faces.v,E=out$E,L=out$L,lambda.v=out$lambda.v,omega=out$omega,n.psi=n.psi,rho.fx=rho.fx,rho.v=rho.v,rho.f=out$rho.f,sp.mesh=sp.mesh)
   ret
@@ -403,22 +324,75 @@ my.mesh.tri.plot <- function(vertices,faces.v,rho.f=NULL){
 	shade3d(mesh.tri,col=col2)
 }
 
+#' @export
 my.Laplacian <- function(vertices, faces.v){
 	n.v <- length(vertices)
 	n.f <- length(faces.v[1,])
 	n.e <- n.f * 3/2
 	
-	# 三角形の面積
 	edge1 <- vertices[faces.v[2,]]-vertices[faces.v[1,]]
 	edge2 <- vertices[faces.v[3,]]-vertices[faces.v[1,]]
 	tmp <- edge1 * edge2
 	tmp2 <- Mod(Im(tmp))
 	A.f <- (tmp2)/2
-	# 頂点周囲の三角形面積の和
 	val <- rep(A.f,each=3)
 	addr <- c(faces.v)
 	tmp.out <- my.vector.access(val,addr)
-	A.v <- tmp.out[[2]][,1] # 頂点周囲面積和
+	A.v <- tmp.out[[2]][,1] 
 	A.v <- A.v/3
 	
 }
+
+#' @export
+my.curvature.cot <- function(vs,faces.v){
+	n.v <- length(vs)
+	ret <- rep(0*Hk,n.v)
+	edge1 <- vs[faces.v[2,]]-vs[faces.v[1,]]
+	edge2 <- vs[faces.v[3,]]-vs[faces.v[1,]]
+	tmp <- edge1 * edge2
+	tmp2 <- Mod(Im(tmp))
+	#tmp2 <- i(tmp)+j(tmp)+k(tmp)
+	#inv.f <- which(tmp2<0)
+	#faces.v[2:3,inv.f] <- rbind(faces.v[3,inv.f],faces.v[2,inv.f])
+	A.f <- (tmp2)/2
+	val <- rep(A.f,each=3)
+	addr <- c(faces.v)
+	tmp.out <- my.vector.access(val,addr)
+	A.v <- tmp.out[[2]][,1]
+
+	for(i in 1:3){
+		v.ord <- ((1:3)+i+1) %% 3 + 1
+		k1 <- faces.v[v.ord[1],]
+		k2 <- faces.v[v.ord[2],]
+		k3 <- faces.v[v.ord[3],]
+		v1 <- vs[k1]
+		v2 <- vs[k2]
+		v3 <- vs[k3]
+		
+		u1 <- v2-v1
+		u2 <- v3-v1
+
+		u3 <- v3-v2
+		#u3.len <- Mod(Im(u3))
+		u12 <- u1 * u2
+		cotAlpha <- ((-Re(u12))/Mod(Im(u12)))
+
+		val <- c(cotAlpha * u3, cotAlpha * (-u3))
+		addr <- c(k2,k3)
+		tmp.out <- my.vector.access(t(as.matrix(val)),addr)
+		tmp.val <- as.quaternion(t(tmp.out[[2]]))
+		ret[tmp.out[[1]]] <- ret[tmp.out[[1]]] + tmp.val
+	}
+	ret.vec <- -ret/(4*A.v)
+	ret.face.re <- rho.fromVtoTri(Re(ret.vec),faces.v)
+	ret.face.i <- rho.fromVtoTri(i(ret.vec),faces.v)
+	ret.face.j <- rho.fromVtoTri(j(ret.vec),faces.v)
+	ret.face.k <- rho.fromVtoTri(k(ret.vec),faces.v)
+	ret.face <- ret.face.re + Hi * ret.face.i + Hj * ret.face.j + Hk * ret.face.k
+
+
+	dir <- sign(Re(tmp * ret.face))
+	return(list(norm.v=ret.vec,norm.face=ret.face,dir=dir))
+}
+
+
