@@ -4,7 +4,7 @@
 \alias{my.update.heatflow}
 \title{quaternion matrix}
 \usage{
-my.update.heatflow(mesh, xyz, dec, step = 0.01)
+my.update.heatflow(mesh, xyz, step = 0.01)
 }
 \description{
 quaternion matrix
@@ -21,7 +21,7 @@ dec <- my.dec(mesh,xyz)
 n.iter <- 100
 current.xyz <- xyz
 for(i in 1:n.iter){
-	new.out <- my.update.heatflow(mesh,current.xyz,dec,step=0.05)
+	new.out <- my.update.heatflow(mesh,current.xyz,step=0.05)
 	my.mesh.tri.plot.xyz(new.out$xyz,faces.v)
 	current.xyz <- new.out$xyz
 }

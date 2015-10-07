@@ -325,6 +325,11 @@ my.mesh.tri.plot <- function(vertices,faces.v,rho.f=NULL){
 }
 
 #' @export
+my.mesh.tri.plot.xyz <- function(xyz,faces.v,rho.f=NULL){
+	vertices <- Hi*xyz[,1]+Hj*xyz[,2]+Hk*xyz[,3]
+	my.mesh.tri.plot(vertices,faces,rho.f)
+}
+#' @export
 my.Laplacian <- function(vertices, faces.v){
 	n.v <- length(vertices)
 	n.f <- length(faces.v[1,])

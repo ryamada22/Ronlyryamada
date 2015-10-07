@@ -12,16 +12,21 @@
 #' n.iter <- 100
 #' current.xyz <- xyz
 #' for(i in 1:n.iter){
-#' 	new.out <- my.update.heatflow(mesh,current.xyz,dec,step=0.05)
+#' 	new.out <- my.update.heatflow(mesh,current.xyz,step=0.05)
 #' 	my.mesh.tri.plot.xyz(new.out$xyz,faces.v)
 #' 	current.xyz <- new.out$xyz
 #' }
 
-my.update.heatflow <- function(mesh,xyz,dec,step=0.01){
+
+
+my.update.heatflow <- function(mesh,xyz,step=0.01){
+	dec <- my.dec(mesh,xyz)
 	L <- t(dec$d0) %*% dec$star1 %*% dec$d0
+	#L <- L - (max(L)+min(L))/2
 	A <- dec$star0 + step * L
 	rhs <- dec$star0 %*% xyz
 	xyz <- Matrix::solve(A,rhs)
+	xyz <- my.normalize.xyz(xyz)
 	dec <- my.dec(mesh,xyz)
 	return(list(mesh=mesh,xyz=xyz,dec=dec))
 }
@@ -29,6 +34,15 @@ my.update.heatflow <- function(mesh,xyz,dec,step=0.01){
 my.mesh.tri.plot.xyz <- function(xyz,faces.v){
 	vertices <- xyz[,1]*Hi+xyz[,2]*Hj + xyz[,3]*Hk
 	my.mesh.tri.plot(vertices,faces.v)
+}
+
+#' @export
+my.normalize.xyz <- function(xyz){
+	m <- apply(xyz,2,mean)
+	ret <- t(t(xyz)-m)
+	M <- sqrt(apply(ret^2,1,sum))
+	ret <- ret/max(M)
+	ret
 }
 #' @export
 
