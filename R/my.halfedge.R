@@ -114,7 +114,7 @@ my.halfedge <- function(xyz,faces.v){
 #' @export
 my.update.heatflow <- function(mesh,xyz,step=0.01){
 	dec <- my.dec(mesh,xyz)
-	L <- t(dec$d0) %*% dec$star1 %*% dec$d0
+	L <- Matrix::t(dec$d0) %*% dec$star1 %*% dec$d0
 	#L <- L - (max(L)+min(L))/2
 	A <- dec$star0 + step * L
 	rhs <- dec$star0 %*% xyz
@@ -132,7 +132,7 @@ my.mesh.tri.plot.xyz <- function(xyz,faces.v){
 #' @export
 my.normalize.xyz <- function(xyz){
 	m <- apply(xyz,2,mean)
-	ret <- t(t(xyz)-m)
+	ret <- Matrix::t(Matrix::t(xyz)-m)
 	M <- sqrt(apply(ret^2,1,sum))
 	ret <- ret/max(M)
 	ret
