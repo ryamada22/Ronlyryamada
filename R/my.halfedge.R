@@ -18,7 +18,100 @@
 #' }
 
 
+my.halfedge <- function(xyz,faces.v){
+	n.v <- max(c(faces.v))
+	n.f <- length(faces.v[1,])
+	n.e <- n.f*3/2
+	n.he <- n.e * 2
+	
+	HE <- list(id=1:n.he,v=rep(NA,n.he),f=rep(NA,n.he),e=rep(NA,n.he),flip=rep(NA,n.he),nxt=rep(NA,n.he))
+	
+	F <- list(id=1:n.f,he=rep(NA,n.f),v=matrix(NA,n.f,3),norm=matrix(NA,n.f,3),area=rep(NA,n.f))
+	V <- list(id=1:n.v,he=rep(NA,n.v),f=list(),xyz=xyz,norm=matrix(NA,n.v,3),area=rep(NA,n.v))
+	E <- list(id=1:n.e,he=rep(NA,n.e),cot=rep(NA,n.e))
+	
+	for(i in 1:n.f){
+		cnt1 <- (i-1) * 3 + 1
+		cnt2 <- (i-1) * 3 + 2
+		cnt3 <- (i-1) * 3 + 3
+		HE$v[cnt1] <- faces.v[1,i]
+		HE$v[cnt2] <- faces.v[2,i]
+		HE$v[cnt3] <- faces.v[3,i]
+		HE$f[c(cnt1,cnt2,cnt3)] <- i
+		HE$nxt[cnt1] <- cnt2
+		HE$nxt[cnt2] <- cnt3
+		HE$nxt[cnt3] <- cnt1
+		F$he[i] <- cnt1
+		if(is.na(V$he[faces.v[1,i]])){
+			V$he[faces.v[1,i]] <- cnt1
+		}
+		if(is.na(V$he[faces.v[2,i]])){
+			V$he[faces.v[2,i]] <- cnt2
+		}
+		if(is.na(V$he[faces.v[3,i]])){
+			V$he[faces.v[3,i]] <- cnt3
+		}
+	}
+	
+	v.st <- v.end <- rep(NA,n.he)
+	for(i in 1:n.he){
+		v.st[i] <- HE$v[i]
+		v.end[i] <- HE$v[HE$nxt[i]]
+	}
+	v.st.end <- t(apply(cbind(v.st,v.end),1,sort))
+	v.st.end.value <- v.st.end[,1]-1 + v.st.end[,2]*(n.v-1)
+	ord <- order(v.st.end.value)
+	ord2 <- matrix(ord,byrow=TRUE,ncol=2)
+	HE$flip[ord2[,1]] <- ord2[,2]
+	HE$flip[ord2[,2]] <- ord2[,1]
+	HE$e[ord2[,1]] <- 1:n.e
+	HE$e[ord2[,2]] <- 1:n.e
+	E$he <- ord2[,1]
+	
+	V$f <- my.enumerate.v.f2(V,HE)
+	F$v <- my.enumerate.f.v2(F,HE)
+	
+	for(i in 1:n.f){
+		tmp <- my.f.area.norm(V$xyz[F$v[i,],])
+		F$area[i] <- tmp$area
+		F$norm[i,] <- tmp$norm
+	}
+	for(i in 1:n.v){
+		V$area[i] <- sum(F$area[V$f[[i]]])/3
+		tmp <- apply(F$norm[V$f[[i]],],2,sum)
+		V$norm[i,] <- tmp/sqrt(sum(tmp^2))
+	}
+	
+	for(i in 1:n.he){
+		p0 <- HE$v[HE$nxt[HE$nxt[i]]]
+		p1 <- HE$v[i]
+		p2 <- HE$v[HE$nxt[i]]
+		v1 <- V$xyz[p1,]-V$xyz[p0,]
+		v2 <- V$xyz[p2,]-V$xyz[p0,]
+		tmp <- c(v1[2]*v2[3]-v1[3]*v2[2],v1[3]*v2[1]-v1[1]*v2[3],v1[1]*v2[2]-v1[2]*v2[1])
+		HE$cot[i] <- sum(v1*v2)/sqrt(sum(tmp^2))
+		
+	}
+	star0 <- Diagonal(x=V$area)
+	e.cot <- rep(NA,n.e)
+	d0 <- Matrix(0,n.e,n.v)
+	for(i in 1:n.e){
+		he <- E$he[i]
+		flip.he <- HE$flip[he]
+		e.cot[i] <- (HE$cot[he] + HE$cot[flip.he])/2
+		d0[i,HE$v[he]] <- -1
+		d0[i,HE$v[flip.he]] <- 1
+	}
+	star1 <- Diagonal(x=e.cot)
+	star2 <- Diagonal(x=F$area)
 
+	Laplacian <- solve(star0) %*% t(d0) %*% star1 %*% d0
+
+	return(list(HE=HE,V=V,E=E,F=F,star0=star0,star1=star1,d0=d0,Laplacian=Laplacian))
+	
+}
+
+#' @export
 my.update.heatflow <- function(mesh,xyz,step=0.01){
 	dec <- my.dec(mesh,xyz)
 	L <- t(dec$d0) %*% dec$star1 %*% dec$d0
@@ -371,100 +464,6 @@ new.f <- my.update.f(new.e,dec$d0,dec$star0,dec$star1)
   return(list(v.list=v.list,rho.cot.list=rho.cot.list,k=k))
 }
 
-#' @export
-
-my.halfedge <- function(xyz,faces.v){
-	n.v <- max(c(faces.v))
-	n.f <- length(faces.v[1,])
-	n.e <- n.f*3/2
-	n.he <- n.e * 2
-	
-	HE <- list(id=1:n.he,v=rep(NA,n.he),f=rep(NA,n.he),e=rep(NA,n.he),flip=rep(NA,n.he),nxt=rep(NA,n.he))
-	
-	F <- list(id=1:n.f,he=rep(NA,n.f),v=matrix(NA,n.f,3),norm=matrix(NA,n.f,3),area=rep(NA,n.f))
-	V <- list(id=1:n.v,he=rep(NA,n.v),f=list(),xyz=xyz,norm=matrix(NA,n.v,3),area=rep(NA,n.v))
-	E <- list(id=1:n.e,he=rep(NA,n.e),cot=rep(NA,n.e))
-	
-	for(i in 1:n.f){
-		cnt1 <- (i-1) * 3 + 1
-		cnt2 <- (i-1) * 3 + 2
-		cnt3 <- (i-1) * 3 + 3
-		HE$v[cnt1] <- faces.v[1,i]
-		HE$v[cnt2] <- faces.v[2,i]
-		HE$v[cnt3] <- faces.v[3,i]
-		HE$f[c(cnt1,cnt2,cnt3)] <- i
-		HE$nxt[cnt1] <- cnt2
-		HE$nxt[cnt2] <- cnt3
-		HE$nxt[cnt3] <- cnt1
-		F$he[i] <- cnt1
-		if(is.na(V$he[faces.v[1,i]])){
-			V$he[faces.v[1,i]] <- cnt1
-		}
-		if(is.na(V$he[faces.v[2,i]])){
-			V$he[faces.v[2,i]] <- cnt2
-		}
-		if(is.na(V$he[faces.v[3,i]])){
-			V$he[faces.v[3,i]] <- cnt3
-		}
-	}
-	
-	v.st <- v.end <- rep(NA,n.he)
-	for(i in 1:n.he){
-		v.st[i] <- HE$v[i]
-		v.end[i] <- HE$v[HE$nxt[i]]
-	}
-	v.st.end <- t(apply(cbind(v.st,v.end),1,sort))
-	v.st.end.value <- v.st.end[,1]-1 + v.st.end[,2]*(n.v-1)
-	ord <- order(v.st.end.value)
-	ord2 <- matrix(ord,byrow=TRUE,ncol=2)
-	HE$flip[ord2[,1]] <- ord2[,2]
-	HE$flip[ord2[,2]] <- ord2[,1]
-	HE$e[ord2[,1]] <- 1:n.e
-	HE$e[ord2[,2]] <- 1:n.e
-	E$he <- ord2[,1]
-	
-	V$f <- my.enumerate.v.f2(V,HE)
-	F$v <- my.enumerate.f.v2(F,HE)
-	
-	for(i in 1:n.f){
-		tmp <- my.f.area.norm(V$xyz[F$v[i,],])
-		F$area[i] <- tmp$area
-		F$norm[i,] <- tmp$norm
-	}
-	for(i in 1:n.v){
-		V$area[i] <- sum(F$area[V$f[[i]]])/3
-		tmp <- apply(F$norm[V$f[[i]],],2,sum)
-		V$norm[i,] <- tmp/sqrt(sum(tmp^2))
-	}
-	
-	for(i in 1:n.he){
-		p0 <- HE$v[HE$nxt[HE$nxt[i]]]
-		p1 <- HE$v[i]
-		p2 <- HE$v[HE$nxt[i]]
-		v1 <- V$xyz[p1,]-V$xyz[p0,]
-		v2 <- V$xyz[p2,]-V$xyz[p0,]
-		tmp <- c(v1[2]*v2[3]-v1[3]*v2[2],v1[3]*v2[1]-v1[1]*v2[3],v1[1]*v2[2]-v1[2]*v2[1])
-		HE$cot[i] <- sum(v1*v2)/sqrt(sum(tmp^2))
-		
-	}
-	star0 <- Diagonal(x=V$area)
-	e.cot <- rep(NA,n.e)
-	d0 <- Matrix(0,n.e,n.v)
-	for(i in 1:n.e){
-		he <- E$he[i]
-		flip.he <- HE$flip[he]
-		e.cot[i] <- (HE$cot[he] + HE$cot[flip.he])/2
-		d0[i,HE$v[he]] <- -1
-		d0[i,HE$v[flip.he]] <- 1
-	}
-	star1 <- Diagonal(x=e.cot)
-	star2 <- Diagonal(x=F$area)
-
-	Laplacian <- solve(star0) %*% t(d0) %*% star1 %*% d0
-
-	return(list(HE=HE,V=V,E=E,F=F,star0=star0,star1=star1,d0=d0,Laplacian=Laplacian))
-	
-}
 #' @export
 
 my.f.area.norm <- function(X){
