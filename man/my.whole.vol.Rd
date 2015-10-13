@@ -28,6 +28,7 @@ hist(clu[[3]],ylim=c(0,100))
 cluster.n <- clu[[1]][[3]]
 vol <- vol.slice <- list()
 ctr <- ctr.slice <- list()
+tri.mesh.slice <- list()
 dm <- dim(data.)
 for(i in 1:cluster.n){
 	tmp.arr <- array(as.numeric(clu[[3]]==i),dm)
@@ -35,6 +36,7 @@ for(i in 1:cluster.n){
 	vol.slice[[i]] <- my.slice.vol(tmp.arr,df)
 	ctr[[i]] <- my.whole.center(tmp.arr)
 	ctr.slice[[i]] <- my.slice.center(tmp.arr,df)
+	tri.mesh.slice[[i]] <- my.slice.tri.mesh(tmp.arr.df)
 }
 }
 

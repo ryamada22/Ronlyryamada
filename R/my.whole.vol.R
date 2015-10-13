@@ -19,6 +19,7 @@
 #' cluster.n <- clu[[1]][[3]]
 #' vol <- vol.slice <- list()
 #' ctr <- ctr.slice <- list()
+#' tri.mesh.slice <- list()
 #' dm <- dim(data.)
 #' for(i in 1:cluster.n){
 #' 	tmp.arr <- array(as.numeric(clu[[3]]==i),dm)
@@ -26,6 +27,7 @@
 #' 	vol.slice[[i]] <- my.slice.vol(tmp.arr,df)
 #' 	ctr[[i]] <- my.whole.center(tmp.arr)
 #' 	ctr.slice[[i]] <- my.slice.center(tmp.arr,df)
+#' 	tri.mesh.slice[[i]] <- my.slice.tri.mesh(tmp.arr.df)
 #' }
 
 my.whole.vol <- function(v){
@@ -40,7 +42,7 @@ my.slice.vol <- function(v,d){
 	for(i in 1:L){
 		ret[i] <- my.whole.vol(my.slice.2(c(v),dm,d,i)[[1]])
 	}
-	ret
+	return(ret)
 }
 
 #' @export
@@ -72,6 +74,17 @@ my.slice.center <- function(v,d){
 		}
 		ret[i,] <- tmp
 	}
-	ret
+	return(ret)
 }
 
+#' @export
+my.slice.tri.mesh <- function(v,d){
+	dm <- dim(v)
+	L <- dm[d]
+	ret <- list()
+	for(i in 1:L){
+		tmp.out <- my.slice.2(c(v),dm,d,i)
+		ret[[i]] <- my.peri.tri(array(tmp.out[[1]],tmp.out[[2]]))
+	}
+	return(ret)
+}
