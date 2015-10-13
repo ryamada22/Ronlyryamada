@@ -14,6 +14,8 @@ The functions are to quantitate various features of 3D+1T data
 \examples{
 library(igraph)
 library(misc3d)
+library(onion)
+library(rgl)
 df <- 4
 n <- 20
 data. <- array(0,rep(n,df))
