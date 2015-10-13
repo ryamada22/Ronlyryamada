@@ -51,6 +51,7 @@ my.catmull.clark.tri <- function(x.vet){
 	t.of.e <- x.vet[[2]]$t.of.e
 	v.of.e <- x.vet[[2]]$v.of.e
 	face.pt <- (x[v.of.t[,1],] + x[v.of.t[,2],] + x[v.of.t[,3],])/3
+	face.pt <- matrix(face.pt,ncol=3)
 	edge.pt <- (face.pt[t.of.e[,1],] + face.pt[t.of.e[,2],] + x[v.of.e[,1],] + x[v.of.e[,2],])/4
 	new.v.pt <- matrix(0,length(x[,1]),3)
 	for(i in 1:length(new.v.pt[,1])){
@@ -102,21 +103,29 @@ my.catmull.clark.tri <- function(x.vet){
 
 #' @export
 my.tri.v.id <- function(v,u){
+	if(!is.matrix(u)){
+		u <- matrix(u,nrow=1)
+	}
 	d <- matrix(0,length(v[,1]),length(u[,1]))
 	for(i in 1:length(v[1,])){
 		d <- d+abs(outer(v[,i],u[,i],"-"))
 	}
 	ret <- which(d==0,arr.ind=TRUE)
-	ret[,c(2,1)]
+	ret1 <- ret[,c(2,1)]
+	if(!is.matrix(ret1)){
+		ret1 <- matrix(ret1,ncol=2)
+	}
+	return(ret1)
 }
 
 #' @export
 my.tri.vid <- function(tris){
 	v <- unique(rbind(tris$v1,tris$v2,tris$v3))
-	v1 <- my.tri.v.id(v,tris$v1)
-	v2 <- my.tri.v.id(v,tris$v2)
-	v3 <- my.tri.v.id(v,tris$v3)
+	v1 <- my.tri.v.id(v,matrix(tris$v1,ncol=3))
+	v2 <- my.tri.v.id(v,matrix(tris$v2,ncol=3))
+	v3 <- my.tri.v.id(v,matrix(tris$v3,ncol=3))
 	tri.vid <- cbind(v1[,2],v2[,2],v3[,2])
+	tri.vid <- matrix(tri.vid,ncol=3)
 	tri.vid.s <- t(apply(tri.vid,1,sort))
 	return(list(v=v,tri.vid=tri.vid.s,tri.vid.unsorted=tri.vid,tri.coord=list(tris$v1,tris$v2,tris$v3)))
 }
@@ -131,6 +140,9 @@ my.tri.edge <- function(tri){
 
 #' @export
 my.tri.vet <- function(tri){
+	if(!is.matrix(tri)){
+		tri <- matrix(tri,ncol=3)
+	}
 	v.of.e <- my.tri.edge(tri)
 	n.v <- length(unique(c(tri)))
 	#v <- 1:length((x[,1]))
@@ -144,9 +156,9 @@ my.tri.vet <- function(tri){
 	}
 	tmp.et.mat <- matrix(0,length(v.of.e[,1]),length(tri[,1]))
 	for(i in 1:length(v.of.e[,1])){
-		tmp1 <- t(tri[,1:2])-v.of.e[i,]
-		tmp2 <- t(tri[,c(1,3)])-v.of.e[i,]
-		tmp3 <- t(tri[,2:3])-v.of.e[i,]
+		tmp1 <- t(matrix(tri[,1:2],ncol=2))-v.of.e[i,]
+		tmp2 <- t(matrix(tri[,c(1,3)],ncol=2))-v.of.e[i,]
+		tmp3 <- t(matrix(tri[,2:3],ncol=2))-v.of.e[i,]
 		tmp123 <- apply(abs(tmp1),2,sum)*apply(abs(tmp2),2,sum)*apply(abs(tmp3),2,sum)
 		tmp4 <- which(tmp123==0)
 		tmp.et.mat[i,tmp4] <- 1		

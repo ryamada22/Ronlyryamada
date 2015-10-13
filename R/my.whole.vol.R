@@ -11,10 +11,10 @@
 #' n <- 20
 #' data. <- array(0,rep(n,df))
 #' addr <- t(which(data.>=0,arr.ind=TRUE))
-#' n.sp <- 20
+#' n.sp <- 6
 #' for(i in 1:n.sp){
 #' 	tmp <- runif(df) * n
-#' 	tmp2 <- runif(1) * n/5
+#' 	tmp2 <- runif(1) * n/5+2
 #' 	data.[apply((addr - tmp)^2,2,sum) < tmp2] <- 1
 #' }
 #' clu <- my.labeling(data.)
@@ -22,7 +22,7 @@
 #' cluster.n <- clu[[1]][[3]]
 #' vol <- vol.slice <- list()
 #' ctr <- ctr.slice <- list()
-#' tri.mesh.slice <- list()
+#' #tri.mesh.slice <- list()
 #' dm <- dim(data.)
 #' for(i in 1:cluster.n){
 #' 	tmp.arr <- array(as.numeric(clu[[3]]==i),dm)
@@ -30,7 +30,6 @@
 #' 	vol.slice[[i]] <- my.slice.vol(tmp.arr,df)
 #' 	ctr[[i]] <- my.whole.center(tmp.arr)
 #' 	ctr.slice[[i]] <- my.slice.center(tmp.arr,df)
-#' 	tri.mesh.slice[[i]] <- my.slice.tri.mesh(tmp.arr,df)
 #' }
 
 my.whole.vol <- function(v){
@@ -80,37 +79,3 @@ my.slice.center <- function(v,d){
 	return(ret)
 }
 
-#' @export
-my.slice.tri.mesh <- function(v,d){
-	dm <- dim(v)
-	L <- dm[d]
-	ret <- list()
-	for(i in 1:L){
-		tmp.out <- my.slice.2(c(v),dm,d,i)
-		ret[[i]] <- list()
-		if(sum(tmp.out[[1]]>0)){
-			tris <- my.peri.tri(array(tmp.out[[1]],tmp.out[[2]]))
-			if(length(tris[[1]]) == 0){
-				ret[[i]] <- list(mesh=list(),xyz=matrix(NA,0,3),tris=tris)
-			}else{
-				ttt <- my.tri.vid(tris)
-				sss <- my.tri.vet(ttt[[2]])
-				x.vet <- list(ttt[[1]],sss)
-				new.vet <- my.catmull.clark.tri(x.vet)
-				tris2 <- tris
-				tris2$v1 <- new.vet[[1]][new.vet[[2]]$v.of.t[,1],]
-				tris2$v2 <- new.vet[[1]][new.vet[[2]]$v.of.t[,2],]
-				tris2$v3 <- new.vet[[1]][new.vet[[2]]$v.of.t[,3],]
-				vot <- new.vet[[2]]$v.of.t
-				voe <- new.vet[[2]]$v.of.e
-				toe <- new.vet[[2]]$t.of.e
-				tri.sorted <- my.sort.tri.dir(toe,voe,vot)
-				vertices <- new.vet[[1]][,1]*Hi+new.vet[[1]][,2]*Hj+new.vet[[1]][,3]*Hk
-				faces.v <- t(tri.sorted)
-				tmp.mesh <- my.mesh(faces.v)
-				ret[[i]] <- list(mesh=tmp.mesh,xyz=new.vet[[1]],tris=tris)
-			}
-		}
-	}
-	return(ret)
-}

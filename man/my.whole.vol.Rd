@@ -20,10 +20,10 @@ df <- 4
 n <- 20
 data. <- array(0,rep(n,df))
 addr <- t(which(data.>=0,arr.ind=TRUE))
-n.sp <- 20
+n.sp <- 6
 for(i in 1:n.sp){
 	tmp <- runif(df) * n
-	tmp2 <- runif(1) * n/5
+	tmp2 <- runif(1) * n/5+2
 	data.[apply((addr - tmp)^2,2,sum) < tmp2] <- 1
 }
 clu <- my.labeling(data.)
@@ -31,7 +31,7 @@ hist(clu[[3]],ylim=c(0,100))
 cluster.n <- clu[[1]][[3]]
 vol <- vol.slice <- list()
 ctr <- ctr.slice <- list()
-tri.mesh.slice <- list()
+#tri.mesh.slice <- list()
 dm <- dim(data.)
 for(i in 1:cluster.n){
 	tmp.arr <- array(as.numeric(clu[[3]]==i),dm)
@@ -39,7 +39,6 @@ for(i in 1:cluster.n){
 	vol.slice[[i]] <- my.slice.vol(tmp.arr,df)
 	ctr[[i]] <- my.whole.center(tmp.arr)
 	ctr.slice[[i]] <- my.slice.center(tmp.arr,df)
-	tri.mesh.slice[[i]] <- my.slice.tri.mesh(tmp.arr,df)
 }
 }
 
