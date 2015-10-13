@@ -46,6 +46,6 @@ for(i in 1:cluster.n){
 	pcaout.slice[[i]] <- my.slice.pca(tmp.arr,df)
 }
 my.diff.serial(ctr.slice[[5]])
-my.diff.serial(pcaout.slice[[5]])
+my.diff.serial(pcaout.slice[[5]][[2]])
 }
 
