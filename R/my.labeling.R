@@ -1,22 +1,31 @@
 #' Arbitrary dimensional voxel data labeling
 
 #' This function labels continuous segments.
-#' @param data is a matrix with ncol-dimensions
+#' @param data. is a matrix with ncol-dimensions
 #' @export
 #' @examples
 #' library(igraph)
 #' df <- 4
 #' n <- 20
-#' data <- array(0,rep(n,df))
-#' addr <- t(which(data>=0,arr.ind=TRUE))
+#' data. <- array(0,rep(n,df))
+#' addr <- t(which(data.>=0,arr.ind=TRUE))
 #' n.sp <- 20
 #' for(i in 1:n.sp){
 #' 	tmp <- runif(df) * n
 #' 	tmp2 <- runif(1) * n/5
-#' 	data[apply((addr - tmp)^2,2,sum) < tmp2] <- 1
+#' 	data.[apply((addr - tmp)^2,2,sum) < tmp2] <- 1
 #' }
-#' clu <- my.labeling(data)
+#' clu <- my.labeling(data.)
 #' hist(clu[[3]],ylim=c(0,100))
+#' cluster.n <- clu[[1]][[3]]
+#' vol.slice <- list()
+#' dm <- dim(data.)
+#' for(i in 1:cluster.n){
+#'	tmp.arr <- array(as.numeric(clu[[3]]==i),dm)
+#' 	vol.slice[[i]] <- my.slice.vol(tmp.arr,df)
+#' }
+#' sapply(vol.slice,sum)
+#' clu[[1]][[2]]
 #' dm <- c(2^8,2^8,2^3,2^4)
 #' ar <- array(1:prod(dm),dm)
 #' d <- sample(1:length(dm),1)
@@ -25,15 +34,15 @@
 #' out2 <- my.slice.2(c(ar),dm,d,j)
 #' plot(out2[[1]])
 
-my.labeling <- function(data){
-	x <- which(data==1,arr.ind=TRUE)
+my.labeling <- function(data.){
+	x <- which(data.==1,arr.ind=TRUE)
 	d <- as.matrix(dist(x,method="manhattan"))
 	d <- d==1
 	g <- graph.adjacency(d)
 	clu <- components(g)
-	addr <- which(data>=0,arr.ind=TRUE)
+	addr <- which(data.>=0,arr.ind=TRUE)
 	val <- rep(0,length(addr[,1]))
-	dm <- dim(data)
+	dm <- dim(data.)
 	dm.prod <- c(1,cumprod(dm))
 	dm.prod <- dm.prod[-length(dm.prod)]
 	for(i in 1:clu[[3]]){
@@ -73,3 +82,4 @@ my.slice.2 <- function(v,dm,d,j){
 	addr <- outer(tmp1,tmp2,"+") 
 	return(list(v=v[addr],dm=dm[-d]))
 }
+

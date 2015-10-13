@@ -5,10 +5,10 @@
 \title{Arbitrary dimensional voxel data labeling
 This function labels continuous segments.}
 \usage{
-my.labeling(data)
+my.labeling(data.)
 }
 \arguments{
-\item{data}{is a matrix with ncol-dimensions}
+\item{data.}{is a matrix with ncol-dimensions}
 }
 \description{
 Arbitrary dimensional voxel data labeling
@@ -18,16 +18,25 @@ This function labels continuous segments.
 library(igraph)
 df <- 4
 n <- 20
-data <- array(0,rep(n,df))
-addr <- t(which(data>=0,arr.ind=TRUE))
+data. <- array(0,rep(n,df))
+addr <- t(which(data.>=0,arr.ind=TRUE))
 n.sp <- 20
 for(i in 1:n.sp){
 	tmp <- runif(df) * n
 	tmp2 <- runif(1) * n/5
-	data[apply((addr - tmp)^2,2,sum) < tmp2] <- 1
+	data.[apply((addr - tmp)^2,2,sum) < tmp2] <- 1
 }
-clu <- my.labeling(data)
+clu <- my.labeling(data.)
 hist(clu[[3]],ylim=c(0,100))
+cluster.n <- clu[[1]][[3]]
+vol.slice <- list()
+dm <- dim(data.)
+for(i in 1:cluster.n){
+	tmp.arr <- array(as.numeric(clu[[3]]==i),dm)
+	vol.slice[[i]] <- my.slice.vol(tmp.arr,df)
+}
+sapply(vol.slice,sum)
+clu[[1]][[2]]
 dm <- c(2^8,2^8,2^3,2^4)
 ar <- array(1:prod(dm),dm)
 d <- sample(1:length(dm),1)
