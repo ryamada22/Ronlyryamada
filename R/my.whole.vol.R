@@ -4,6 +4,7 @@
 #' @export
 #' @examples
 #' library(igraph)
+#' library(misc3d)
 #' df <- 4
 #' n <- 20
 #' data. <- array(0,rep(n,df))
@@ -27,7 +28,7 @@
 #' 	vol.slice[[i]] <- my.slice.vol(tmp.arr,df)
 #' 	ctr[[i]] <- my.whole.center(tmp.arr)
 #' 	ctr.slice[[i]] <- my.slice.center(tmp.arr,df)
-#' 	tri.mesh.slice[[i]] <- my.slice.tri.mesh(tmp.arr.df)
+#' 	tri.mesh.slice[[i]] <- my.slice.tri.mesh(tmp.arr,df)
 #' }
 
 my.whole.vol <- function(v){
@@ -84,7 +85,10 @@ my.slice.tri.mesh <- function(v,d){
 	ret <- list()
 	for(i in 1:L){
 		tmp.out <- my.slice.2(c(v),dm,d,i)
-		ret[[i]] <- my.peri.tri(array(tmp.out[[1]],tmp.out[[2]]))
+		ret[[i]] <- list()
+		if(sum(tmp.out[[1]]>0)){
+			ret[[i]] <- my.peri.tri(array(tmp.out[[1]],tmp.out[[2]]))
+		}
 	}
 	return(ret)
 }

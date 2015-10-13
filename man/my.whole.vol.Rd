@@ -13,6 +13,7 @@ The functions are to quantitate various features of 3D+1T data
 }
 \examples{
 library(igraph)
+library(misc3d)
 df <- 4
 n <- 20
 data. <- array(0,rep(n,df))
@@ -36,7 +37,7 @@ for(i in 1:cluster.n){
 	vol.slice[[i]] <- my.slice.vol(tmp.arr,df)
 	ctr[[i]] <- my.whole.center(tmp.arr)
 	ctr.slice[[i]] <- my.slice.center(tmp.arr,df)
-	tri.mesh.slice[[i]] <- my.slice.tri.mesh(tmp.arr.df)
+	tri.mesh.slice[[i]] <- my.slice.tri.mesh(tmp.arr,df)
 }
 }
 
