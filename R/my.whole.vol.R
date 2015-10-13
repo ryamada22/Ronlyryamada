@@ -103,8 +103,9 @@ my.slice.pca <- function(v,d){
 		tmp.out <- my.slice.2(c(v),dm,d,i)
 		if(sum(tmp.out[[1]])>1){
 			tmp <- my.whole.pca(array(tmp.out[[1]],tmp.out[[2]]))
-			ret.lambda[,i] <- tmp[[1]]
-			ret.vecs[,,i] <- tmp[[2]]
+			ret.lambda[1:length(tmp[[1]]),i] <- tmp[[1]]
+			tmp.dm <- dim(tmp[[2]])
+			ret.vecs[1:tmp.dm[1],1:tmp.dm[2],i] <- tmp[[2]]
 			#ret[[i]] <- tmp
 		}else{
 			#ret[[i]] <- list()
