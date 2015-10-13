@@ -5,6 +5,8 @@
 #' @examples
 #' library(igraph)
 #' library(misc3d)
+#' library(onion)
+#' library(rgl)
 #' df <- 4
 #' n <- 20
 #' data. <- array(0,rep(n,df))
@@ -87,7 +89,27 @@ my.slice.tri.mesh <- function(v,d){
 		tmp.out <- my.slice.2(c(v),dm,d,i)
 		ret[[i]] <- list()
 		if(sum(tmp.out[[1]]>0)){
-			ret[[i]] <- my.peri.tri(array(tmp.out[[1]],tmp.out[[2]]))
+			tris <- my.peri.tri(array(tmp.out[[1]],tmp.out[[2]]))
+			if(length(tris[[1]]) == 0){
+				ret[[i]] <- list(mesh=list(),xyz=matrix(NA,0,3),tris=tris)
+			}else{
+				ttt <- my.tri.vid(tris)
+				sss <- my.tri.vet(ttt[[2]])
+				x.vet <- list(ttt[[1]],sss)
+				new.vet <- my.catmull.clark.tri(x.vet)
+				tris2 <- tris
+				tris2$v1 <- new.vet[[1]][new.vet[[2]]$v.of.t[,1],]
+				tris2$v2 <- new.vet[[1]][new.vet[[2]]$v.of.t[,2],]
+				tris2$v3 <- new.vet[[1]][new.vet[[2]]$v.of.t[,3],]
+				vot <- new.vet[[2]]$v.of.t
+				voe <- new.vet[[2]]$v.of.e
+				toe <- new.vet[[2]]$t.of.e
+				tri.sorted <- my.sort.tri.dir(toe,voe,vot)
+				vertices <- new.vet[[1]][,1]*Hi+new.vet[[1]][,2]*Hj+new.vet[[1]][,3]*Hk
+				faces.v <- t(tri.sorted)
+				tmp.mesh <- my.mesh(faces.v)
+				ret[[i]] <- list(mesh=tmp.mesh,xyz=new.vet[[1]],tris=tris)
+			}
 		}
 	}
 	return(ret)
