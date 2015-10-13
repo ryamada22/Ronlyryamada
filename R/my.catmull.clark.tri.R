@@ -57,9 +57,19 @@ my.catmull.clark.tri <- function(x.vet){
 		ori.v <- x[i,]
 		fs <- x.vet[[2]]$t.of.v[[i]]
 		n <- length(fs)
-		mean.f.pt <- apply(face.pt[fs,],2,mean)
+		if(n==1){
+			mean.f.pt <- face.pt[fs,]
+		}else{
+			mean.f.pt <- apply(face.pt[fs,],2,mean)
+		}
+		
 		ed <- x.vet[[2]]$e.of.v[[i]]
-		mean.e.pt <- apply(edge.pt[ed,],2,mean)
+		if(length(ed)==1){
+			mean.e.pt <- edge.pt[ed,]
+		}else{
+			mean.e.pt <- apply(edge.pt[ed,],2,mean)
+		}
+		
 		new.v.pt[i,] <- (mean.f.pt + 2*mean.e.pt + (n-3)*ori.v)/n
 	}
 	new.v.x <- rbind(new.v.pt,face.pt,edge.pt)
