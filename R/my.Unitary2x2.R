@@ -18,3 +18,10 @@ my.Unitary2x2 <- function(theta,phi1,phi2){
 	ret2 <- matrix(c(x,y,Conj(y),-Conj(x)),byrow=TRUE,2,2)
 	return(list(u1 = ret1,u2=ret2))
 }
+
+#' @export
+
+my.complexV2 <- function(theta,phi1,phi2){
+	ret <- c(cos(theta)*exp(1i*phi1),sin(theta)*exp(1i*phi2))
+	return(ret)
+}
