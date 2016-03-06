@@ -18,8 +18,6 @@ my.random.walk <- function(Nobs,Nt,d){
 		Tr[i,,] <- apply(Tr[i,,],2,cumsum)
 		tmp <- apply(Tr[i,,],2,mean)
 		Tr[i,,] <- t(t(Tr[i,,]) + tmp)
-		Tr.concat <- rbind(Tr.concat,Tr[i,,])
-		col.concat <- c(col.concat,rep(i,Nt))
 	}
 	Tr
 }
