@@ -9,7 +9,7 @@
 #' Nobs <- 5;Nt <- 100; d <- 3
 #' X = my.random.walk(Nobs,Nt,d)
 #' X.k <- my.k.diff(X)
-#' X.d <- my.array.diff(X)
+#' X.d <- my.array.dist(X)
 
 my.random.walk <- function(Nobs,Nt,d){
 	Tr <- array(0,c(Nobs,Nt,d))

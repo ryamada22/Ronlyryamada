@@ -14,7 +14,7 @@ library(rgl)
 Nobs <- 5;Nt <- 100; d <- 3
 X = my.random.walk(Nobs,Nt,d)
 X.k <- my.k.diff(X)
-X.d <- my.array.diff(X)
+X.d <- my.array.dist(X)
 }
 \keyword{movement}
 
