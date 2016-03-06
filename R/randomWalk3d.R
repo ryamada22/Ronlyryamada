@@ -6,10 +6,14 @@
 #' @export
 #' @examples
 #' library(rgl)
+#' library(onion)
 #' Nobs <- 5;Nt <- 100; d <- 3
 #' X = my.random.walk(Nobs,Nt,d)
 #' X.k <- my.k.diff(X)
 #' X.d <- my.array.dist(X)
+#' X.mf <- array(c(t(apply(X.k,2,my.moving.frame.array))),c(Nobs,Nt-2,3,3))
+
+
 
 my.random.walk <- function(Nobs,Nt,d){
 	Tr <- array(0,c(Nobs,Nt,d))
@@ -23,7 +27,7 @@ my.random.walk <- function(Nobs,Nt,d){
 }
 
 #' @export
-my.gravity.walk <- function(Nobs,Nt,d,w=rep(1,Nobs),dt=0.01,dt2=0.01,sd=1){
+my.gravity.walk <- function(Nobs,Nt,d,w=rep(1,Nobs),dt=0.01,dt2=0.01,sd=0.01){
 	x <- matrix(rnorm(Nobs*d),ncol=d)
 	v <- matrix(rnorm(Nobs*d),ncol=d)
 	u <- my.gravity(x,w)*dt2
@@ -102,3 +106,26 @@ my.series.seg <- function(n){
 	return(c(t(tmp)))
 }
 
+#' @export
+my.moving.frame <- function(X,X.,X..){
+	H <- Hi * X[,1] + Hj * X[,2] + Hk * X[,3]
+	H. <- Hi * X.[,1] + Hj * X.[,2] + Hk * X.[,3]
+	H.. <- Hi * X..[,1] + Hj * X..[,2] + Hk * X..[,3]
+	H... <- H. * H..
+	
+	H..2 <- H... * H.
+	MF1 <- H./Mod(H.)
+	MF2 <- H..2/Mod(H..2)
+	MF3 <- H.../Mod(H...)
+	MF1. <- as.matrix(Im(MF1))[2:4,]
+	MF2. <- as.matrix(Im(MF2))[2:4,]
+	MF3. <- as.matrix(Im(MF3))[2:4,]
+	tmp <- cbind(t(MF1.),t(MF2.),t(MF3.))
+	return(array(c(tmp),c(length(MF1),3,3)))
+	#return(cbind(MF1,MF2,MF3))
+}
+
+#' @export
+my.moving.frame.array <- function(X){
+	my.moving.frame(X[1,,],X[2,,],X[3,,])
+}

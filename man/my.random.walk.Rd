@@ -11,10 +11,12 @@ my.random.walk(Nobs, Nt, d)
 }
 \examples{
 library(rgl)
+library(onion)
 Nobs <- 5;Nt <- 100; d <- 3
 X = my.random.walk(Nobs,Nt,d)
 X.k <- my.k.diff(X)
 X.d <- my.array.dist(X)
+X.mf <- array(c(t(apply(X.k,2,my.moving.frame.array))),c(Nobs,Nt-2,3,3))
 }
 \keyword{movement}
 
