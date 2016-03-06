@@ -75,7 +75,7 @@ my.array.dist <- function(X,method="euclidean",a.ob=1,a.t=2){
 	ret
 }	
 #' @export
-my.kdiff <- function(X,k,shrink=TRUE){
+my.k.diff <- function(X,k,shrink=TRUE){
 	d <- dim(X)
 	Nobs <- d[1]
 	ret <- array(0,c(k+1,d))
