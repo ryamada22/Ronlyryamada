@@ -15,7 +15,7 @@ my.fit.sphere(x, R = 1)
 Fit to sphere
 }
 \examples{
-x <- matrix(rnorm(100*3),ncol=3)
+x <- matrix(rnorm(1000*3),ncol=3)
 x <- my.fit.sphere(x)
 }
 
