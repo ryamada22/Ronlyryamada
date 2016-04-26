@@ -60,9 +60,19 @@ my.cell.sim <- function(n=5,k=5,n.mesh=32,n.step=50,scale.shift=0.1,scale.rotati
 		segments3d(rot.xxxx.[c(t(xxx$edge)),])
 		file.out <- paste(file.name,i,".obj",sep="")
 		my.write.obj(rot.xxxx.,xxx$f,file.out)
+		
 	}
-
-
+	file.out.param <- paste(file.name,"_param.txt",sep="")
+	fileConn <- file(file.out.param,"w")
+	cat(paste("n=",n,"\n",sep=""),file=fileConn)
+	cat(paste("k=",k,"\n",sep=""),file=fileConn)
+	cat(paste("n.mesh=",n.mesh,"\n",sep=""),file=fileConn)
+	cat(paste("n.step=",n.step,"\n",sep=""),file=fileConn)
+	cat(paste("scale.shift=",scale.shift,"\n",sep=""),file=fileConn)
+	cat(paste("scale.rotation1=",scale.rotation1,"\n",sep=""),file=fileConn)
+	cat(paste("scale.rotation2=",scale.rotation2,"\n",sep=""),file=fileConn)
+	cat(paste("scale.shear=",scale.shear,"\n",sep=""),file=fileConn)
+	close(fileConn)
 }
 
 #' @export
