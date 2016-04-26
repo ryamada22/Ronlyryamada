@@ -56,6 +56,7 @@ my.plot.hemispheres <- function(x){
 	s.r <- pi-x[[2]][s]
 	S <- cbind(s.r * cos(x[[1]][s]), s.r * sin(x[[1]][s]))
 	S[,2] <- S[,2] - pi
-	plot(rbind(N,S))
+	NS <- rbind(N,S)
+	plot(NS,xlim=range(NS),ylim=range(NS))
 
 }
