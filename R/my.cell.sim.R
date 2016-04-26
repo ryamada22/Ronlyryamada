@@ -42,7 +42,6 @@ my.cell.sim <- function(n=5,k=5,n.mesh=32,n.step=50,scale.shift=0.1,scale.rotati
 
 	M <- diag(rep(1,4))
 	M[1:3,4] <- runif(3)*scale.shift
-	eigen.out <- eigen(tmp.rot)
 	theta1 <- runif(1)*scale.rotation1
 	theta2 <- runif(1)*scale.rotation2
 	Mm <- diag(rep(1,3))
