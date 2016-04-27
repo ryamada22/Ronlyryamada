@@ -15,14 +15,9 @@
 #' library(rgl)
 #' library(RFOC)
 #' library(onion)
-#' out <- my.sphere.field()
-#' # ”¼Œa‚ðF‚Å
-#' col1 <- col2 <- rep(0,length(out$v[,1]))
-#' col1[which(out$v[,1]>=0)] <- out$v[,1][which(out$v[,1]>=0)]
-#' col2[which(out$v[,1]<0)] <- -out$v[,1][which(out$v[,1]<0)]
-#' col1 <- col1/max(col1)
-#' col2 <- col2/max(col2)
-#' plot3d(out$mesh$x,col=rgb(1-col1,1-col2,0),size=10)
+#' out3 <- my.spin.transformation(n.mesh=64,scale.shift=3,scale.shear=0.2)
+#' plot3d(out3$new.xyz,xlim=range(out3$new.xyz),ylim=range(out3$new.xyz),zlim=range(out3$new.xyz))
+#' segments3d(out3$new.xyz[c(t(out3$mesh$edge)),])
 
 my.spin.transformation <- function(n=5,k=runif(1),n.mesh=32,n.step = 10,scale.shift=0.1,scale.rotation1=0.1,scale.rotation2=0.1,scale.shear=0.1,file.name = "hoge"){
 	out1 <- my.sphere.field(n=n,k=k,n.mesh=n.mesh,scale.shift=scale.shift,scale.rotation1=scale.rotation1,scale.rotation2=scale.rotation2,scale.shear=scale.shear)
