@@ -52,7 +52,7 @@ my.cell.sim <- function(n=5,k=5,n.mesh=32,n.step=50,scale.shift=0.1,scale.rotati
 
 	for(i in 1:n.step){
 		A. <- A. + rnorm(n^2,0,0.05)
-		xxx <- my.spherical.harm.mesh(A=A.,n=32)
+		xxx <- my.spherical.harm.mesh(A=A.,n=n.mesh)
 		xxxx <- cbind(xxx$v,rep(1,length(xxx$v[,1])))
 		rot.xxxx <- t(M %*% t(xxxx))
 		rot.xxxx. <- rot.xxxx[,1:3]/rot.xxxx[,4]
