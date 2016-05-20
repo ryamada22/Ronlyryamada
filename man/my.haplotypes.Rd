@@ -11,6 +11,8 @@ e-flat and m-flat
 }
 \examples{
 library(MCMCpack)
+d <- 3
+n <- 2^d
 freq <- c(rdirichlet(1,rep(1,n)))
 freq
 thetapsi <- my.freq2thetapsi(freq)
