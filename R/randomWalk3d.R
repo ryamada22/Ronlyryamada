@@ -80,6 +80,20 @@ my.array.dist <- function(X,method="euclidean",a.ob=1,a.t=2){
 my.k.diff <- function(X,k=2,shrink=TRUE){
 	d <- dim(X)
 	Nobs <- d[1]
+	if(shrink){
+		ret <- array(0,c(k+1,d))
+		ret[1,,,] <- X
+		for(i in 1:k){
+			st <- 1
+			end <- d[2] - 1
+			for(j in 1:Nobs){
+				tmp <- apply(ret[i,j,,],2,diff)
+				ret[i+1,j,st:end,] <- tmp
+			}
+		}
+		ret <- ret[,,1:(d[2]-k),]
+		return(ret)
+	}
 	ret <- array(0,c(k+1,d))
 	ret[1,,,] <- X
 
@@ -91,13 +105,22 @@ my.k.diff <- function(X,k=2,shrink=TRUE){
 			ret[i+1,j,st:end,] <- tmp
 		}
 	}
-	if(shrink){
-		tmp1 <- k %% 2
-		tmp2 <- (k-tmp1)/2
-		tmp3 <- (k+tmp1)/2
-		ret <- ret[,,(1+tmp2):(d[2]-tmp3),]
+	return(ret)
+}
+
+#' @export
+my.gramSchmidt.mf <- function(X){
+	d <- dim(X)
+	X.k <- my.k.diff(X,k=d[3])
+	Q <- R <- array(0,c(d[1],length(X.k[1,1,,1]),d[3],d[3]))
+	for(i in 1:d[1]){
+		for(j in 1:length(X.k[1,1,,1])){
+			tmp <- gramSchmidt(t(X.k[2:(d[3]+1),i,j,]))
+			Q[i,j,,] <- tmp$Q
+			R[i,j,,] <- tmp$R
+		}
 	}
-	ret
+	return(list(Q=Q,R=R,X.k=X.k))
 }
 
 #' @export
@@ -108,9 +131,9 @@ my.series.seg <- function(n){
 
 #' @export
 my.moving.frame <- function(X,X.,X..){
-	H <- Hi * X[,1] + Hj * X[,2] + Hk * X[,3]
-	H. <- Hi * X.[,1] + Hj * X.[,2] + Hk * X.[,3]
-	H.. <- Hi * X..[,1] + Hj * X..[,2] + Hk * X..[,3]
+	H <- my.quaternion.conversion(X)
+	H. <- my.quaternion.conversion(X.)
+	H.. <- my.quaternion.conversion(X..)
 	H... <- H. * H..
 	
 	H..2 <- H... * H.
@@ -128,4 +151,12 @@ my.moving.frame <- function(X,X.,X..){
 #' @export
 my.moving.frame.array <- function(X){
 	my.moving.frame(X[1,,],X[2,,],X[3,,])
+}
+
+#' @export
+my.quaternion.conversion <- function(x){
+	if(!is.matrix(x)){
+		x <- matrix(x,ncol=3)
+	}
+	Hi * x[,1] + Hj * x[,2] + Hk * x[,3]
 }
