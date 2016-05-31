@@ -134,7 +134,7 @@ my.moving.frame <- function(X,X.,X..){
 	H <- my.quaternion.conversion(X)
 	H. <- my.quaternion.conversion(X.)
 	H.. <- my.quaternion.conversion(X..)
-	H... <- H. * H..
+	H... <- Im(H. * H..)
 	
 	H..2 <- H... * H.
 	MF1 <- H./Mod(H.)
