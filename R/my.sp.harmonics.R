@@ -46,14 +46,14 @@
 #' 		ret[i,j] <- list(my.spherical.harm(A.))
 #' 	}
 #' }
-#' # ”¼Œa‚»‚Ì‚Ü‚Ü
+#' # åŠå¾„ãã®ã¾ã¾
 #' tmp <- ret[4,1][[1]]
 #' out <- rbind(tmp$X,rep(min(tmp$X),3),rep(max(tmp$X),3))
 #' plot3d(out,type="l",col=rainbow(128))
-#' # ”¼Œa‚Ì‚Qæ‚Å
+#' # åŠå¾„ã®ï¼’ä¹—ã§
 #' out.. <- rbind(tmp$X*tmp$r,rep(min(tmp$X*tmp$r),3),rep(max(tmp$X*tmp$r),3))
 #' plot3d(out..,type="l",col=rainbow(128))
-#' # ”¼Œa‚ðF‚Å
+#' # åŠå¾„ã‚’è‰²ã§
 #' col1 <- col2 <- rep(0,length(tmp$r))
 #' col1[which(tmp$r>=0)] <- tmp$r[which(tmp$r>=0)]
 #' col2[which(tmp$r<0)] <- -tmp$r[which(tmp$r<0)]
@@ -66,7 +66,7 @@
 #' for(i in 1:n){
 #' 	for(j in 1:i){
 #' 		A. <- A
-#' 		A.[1,1] <- 5 # ³‰~‚Ì•ª
+#' 		A.[1,1] <- 5 # æ­£å††ã®åˆ†
 #' 		A.[i,j] <- 1
 #' 		ret[i,j] <- list(my.spherical.harm(A.))
 #' 	}
@@ -132,15 +132,15 @@ my.differential <- function(x,k){
 #' @export
 
 my.spherical.harm <- function(A,B=matrix(0,ncol=ncol(A),nrow=nrow(A)),Pm=my.Legendre(length(A[,1])),theta=seq(from=0,to=1,length=100)*2*pi,phi=seq(from=0,to=1,length=100)*pi,normalization=TRUE){
-# Šp“x‚ÌÀ•W
+# è§’åº¦ã®åº§æ¨™
 	tp <- expand.grid(theta,phi)
 	z <- rep(0,length(tp[,1]))
 	M <- ncol(A)
-# d‚Ý‚Ã‚¯s—ñ‚Å‚Ìƒ‹[ƒv
+# é‡ã¿ã¥ã‘è¡Œåˆ—ã§ã®ãƒ«ãƒ¼ãƒ—
 	for(i in 1:M){
 		for(j in 1:i){
 			tmp1 <- (A[i,j] * cos((j-1)*tp[,1] + B[i,j]) ) * (-1)^(j-1)*(1-cos(tp[,2])^2)^((j-1)/2)
-# ƒ‹ƒWƒƒƒ“ƒhƒ‹‘½€Ž®‚Ìj-1ŠK”÷•ª‚ÌŒW”ƒxƒNƒgƒ‹
+# ãƒ«ã‚¸ãƒ£ãƒ³ãƒ‰ãƒ«å¤šé …å¼ã®j-1éšŽå¾®åˆ†ã®ä¿‚æ•°ãƒ™ã‚¯ãƒˆãƒ«
 			tmp2 <- my.differential(Pm[[i]],j-1)
 			tmp3 <- cos(tp[,2])
 			tmp4 <- rep(0,length(z))
@@ -174,13 +174,13 @@ my.spherical.harm.mesh <- function(A,B=matrix(0,ncol=ncol(A),nrow=nrow(A)),Pm=my
 	edge <- tmp$edge
 	tosp <- TOSPHERE(xyz[,1],xyz[,2],xyz[,3])
 	tp <- cbind(tosp[[1]]/360*2*pi,tosp[[2]]/360*2*pi)
-	z <- xyz[,3]
+	z <- rep(0,length(tp[,1]))
 	M <- ncol(A)
-# d‚Ý‚Ã‚¯s—ñ‚Å‚Ìƒ‹[ƒv
+# é‡ã¿ã¥ã‘è¡Œåˆ—ã§ã®ãƒ«ãƒ¼ãƒ—
 	for(i in 1:M){
 		for(j in 1:i){
 			tmp1 <- (A[i,j] * cos((j-1)*tp[,1] + B[i,j]) ) * (-1)^(j-1)*(1-cos(tp[,2])^2)^((j-1)/2)
-# ƒ‹ƒWƒƒƒ“ƒhƒ‹‘½€Ž®‚Ìj-1ŠK”÷•ª‚ÌŒW”ƒxƒNƒgƒ‹
+# ãƒ«ã‚¸ãƒ£ãƒ³ãƒ‰ãƒ«å¤šé …å¼ã®j-1éšŽå¾®åˆ†ã®ä¿‚æ•°ãƒ™ã‚¯ãƒˆãƒ«
 			tmp2 <- my.differential(Pm[[i]],j-1)
 			tmp3 <- cos(tp[,2])
 			tmp4 <- rep(0,length(z))
